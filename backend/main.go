@@ -180,15 +180,11 @@ func init() {
 	}
 	DB.AutoMigrate(
 		&models.User{},
-		// &models.Product{},
-		// &models.Modifier{},
-		&models.Product{},
-		&models.ProductOption{},
-		&models.TemperatureSize{},
-		&models.Temperature{},
-		&models.SizeOption{},
-		&models.ProductModifier{},
+
 		&models.Modifier{},
+		&models.Categories{},
+		&models.Size{},
+		&models.Temperature{},
 	)
 
 	// Khởi tạo dữ liệu mẫu

@@ -49,15 +49,31 @@ func SetupRouter() *gin.Engine {
 	r.DELETE("/api/users/:id", controllers.DeleteUser)
 
 	//products
-	r.GET("/api/products", controllers.GetProducts)
-	r.POST("/api/products", controllers.CreateProduct)
+	// r.GET("/api/products", controllers.GetProducts)
+	// r.POST("/api/products", controllers.CreateProduct)
 	// r.PUT("/api/products/:id", controllers.UpdateProduct)
 	// r.DELETE("/api/products/:id", controllers.DeleteProduct)
-	// // modifiers
-	r.GET("/api/modifiers", controllers.GetModifiers)
-	// r.POST("/api/modifiers", controllers.CreateModifier)
-	// r.PUT("/api/modifiers/:id", controllers.UpdateModifier)
-	// r.DELETE("/api/modifiers/:id", controllers.DeleteModifier)
+
+	// Categories Routes
+	r.POST("/api/category", controllers.CreateCategory)
+	r.GET("/api/category/:id", controllers.GetCategory)
+	r.GET("/api/categories", controllers.GetCategories)
+	r.PUT("/api/category/:id", controllers.UpdateCategory)
+	r.DELETE("/api/category/:id", controllers.DeleteCategory)
+
+	// Size Routes
+	r.POST("/api/size", controllers.CreateSize)
+	r.GET("/api/size/:id", controllers.GetSize)
+	r.GET("/api/sizes", controllers.GetSizes)
+	r.PUT("/api/size/:id", controllers.UpdateSize)
+	r.DELETE("/api/size/:id", controllers.DeleteSize)
+
+	// Temperature Routes
+	r.POST("/api/temperature", controllers.CreateTemperature)
+	r.GET("/api/temperature/:id", controllers.GetTemperature)
+	r.GET("/api/temperatures", controllers.GetTemperatures)
+	r.PUT("/api/temperature/:id", controllers.UpdateTemperature)
+	r.DELETE("/api/temperature/:id", controllers.DeleteTemperature)
 
 	// Protected routes
 	auth := r.Group("/")
