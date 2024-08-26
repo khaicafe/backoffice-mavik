@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  backend:
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      args:
+        - GITHUB_TOKEN=${GITHUB_TOKEN}
+        - REPO_BRANCH=main
+    container_name: backend
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - JWT_SECRET=${JWT_SECRET}
+      - GIN_MODE=release
+      - ENVIRONMENT=production
+
+  frontend:
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - GITHUB_TOKEN=${GITHUB_TOKEN}
+        - REPO_BRANCH=main
+    container_name: frontend
+    ports:
+      - "80:80"
+    networks:
+      - app-network
+    environment:
+      - REACT_APP_API_URL=${REACT_APP_API_URL}
+      - ENVIRONMENT=production
+
+networks:
+  app-network:
+    driver: bridge

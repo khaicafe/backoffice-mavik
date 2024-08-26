@@ -1,0 +1,2 @@
+# fix lỗi crlf, lf ở window khi up lên github
+* text=auto eol=lf
