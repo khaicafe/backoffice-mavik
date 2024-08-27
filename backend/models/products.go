@@ -18,8 +18,6 @@ type Product struct {
 	AverageRating     float64             `json:"average_rating"`
 	RatingsCount      string              `json:"ratings_count"`
 	Favourite         bool                `json:"favourite"`
-	Type              string              `json:"type"`
-	Index             int                 `json:"index"`
 	ProductGroups     []ProductGroup      `json:"product_groups" gorm:"foreignKey:ProductID"`
 	ProductTempsSizes []ProductTempSize   `json:"product_temp_sizes" gorm:"foreignKey:ProductID"`
 	ProductCategories []ProductCategories `json:"product_categories" gorm:"foreignKey:ProductID"`

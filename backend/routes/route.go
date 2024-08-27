@@ -13,6 +13,11 @@ import (
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
+	r.Use(func(c *gin.Context) {
+		c.Set("db", models.DB)
+		c.Next()
+	})
+
 	// Configure CORS middleware
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"}, // Cho phép tất cả các nguồn gốc
@@ -40,6 +45,19 @@ func SetupRouter() *gin.Engine {
 	// r.GET("/api/users", controllers.GetUsers)
 	// r.PUT("/api/users/role", controllers.UpdateUserRole)
 
+	// Serve static files từ thư mục "assets"
+	r.Static("/uploadImage", "./uploadImage")
+
+	// Route để upload ảnh
+	r.POST("/api/uploads", controllers.UploadImages)
+
+	// CRUD for Image
+	// r.POST("/images", controllers.CreateImage)       // Create
+	r.GET("/images", controllers.GetAllImages)       // Read all
+	r.GET("/images/:id", controllers.GetImageByID)   // Read one
+	r.PUT("/images/:id", controllers.UpdateImage)    // Update
+	r.DELETE("/images/:id", controllers.DeleteImage) // Delete
+
 	// User routes
 	// Route mới cho việc lấy tất cả người dùng
 	r.GET("/api/users/all", controllers.GetAllUsers)
@@ -48,11 +66,29 @@ func SetupRouter() *gin.Engine {
 	r.PUT("/api/users/:id", controllers.UpdateUserPassword)
 	r.DELETE("/api/users/:id", controllers.DeleteUser)
 
-	//products
-	// r.GET("/api/products", controllers.GetProducts)
-	// r.POST("/api/products", controllers.CreateProduct)
-	// r.PUT("/api/products/:id", controllers.UpdateProduct)
-	// r.DELETE("/api/products/:id", controllers.DeleteProduct)
+	// Product routes
+	r.POST("/api/products", controllers.CreateProduct)
+	r.GET("/api/products", controllers.GetProducts)
+	r.GET("/api/products/:id", controllers.GetProduct)
+	r.PUT("/api/products/:id", controllers.UpdateProduct)
+	r.DELETE("/api/products/:id", controllers.DeleteProduct)
+
+	// Modifier Routes
+	r.POST("/api/modifier", controllers.CreateModifier)
+	r.GET("/api/modifier/:id", controllers.GetModifier)
+	r.GET("/api/modifiers", controllers.GetModifiers)
+	r.PUT("/api/modifier/:id", controllers.UpdateModifier)
+	r.DELETE("/api/modifier/:id", controllers.DeleteModifier)
+
+	// Group Modifier routes
+	r.POST("/api/modifierGroups", controllers.CreateGroup)
+	r.GET("/api/modifierGroups", controllers.GetGroups)
+	r.GET("/api/modifierGroups/:id", controllers.GetGroupByID)
+	r.PUT("/api/modifierGroups/:id", controllers.UpdateGroup)
+	r.DELETE("/api/modifierGroups/:id", controllers.DeleteGroup)
+
+	r.POST("/api/group-modifiers", controllers.CreateGroupModifier)
+	r.GET("/api/group-modifiers", controllers.GetAllGroupModifiers)
 
 	// Categories Routes
 	r.POST("/api/category", controllers.CreateCategory)

@@ -9,6 +9,22 @@ import (
 	"gorm.io/gorm"
 )
 
+func GetColumnNames(db *gorm.DB, model interface{}) ([]string, error) {
+	var columnNames []string
+
+	migrator := db.Migrator()
+	columns, err := migrator.ColumnTypes(model)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, column := range columns {
+		columnNames = append(columnNames, column.Name())
+	}
+
+	return columnNames, nil
+}
+
 // CreateModifier - Tạo mới Modifier
 func CreateModifier(c *gin.Context) {
 	var modifier models.Modifier
@@ -44,13 +60,20 @@ func GetModifier(c *gin.Context) {
 
 // GetModifiers - Lấy danh sách tất cả Modifier
 func GetModifiers(c *gin.Context) {
+	columnNames, err := GetColumnNames(models.DB, &models.Modifier{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	var modifiers []models.Modifier
 	if err := models.DB.Find(&modifiers).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, modifiers)
+	// c.JSON(http.StatusOK, modifiers)
+	c.JSON(http.StatusOK, gin.H{"dataTable": modifiers, "columns": columnNames})
 }
 
 // UpdateModifier - Cập nhật thông tin một Modifier theo ID

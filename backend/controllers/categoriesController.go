@@ -42,13 +42,19 @@ func GetCategory(c *gin.Context) {
 }
 
 func GetCategories(c *gin.Context) {
+	columnNames, err := GetColumnNames(models.DB, &models.Categories{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	var categories []models.Categories
 	if err := models.DB.Find(&categories).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, categories)
+	// c.JSON(http.StatusOK, categories)
+	c.JSON(http.StatusOK, gin.H{"dataTable": categories, "columns": columnNames})
 }
 
 func UpdateCategory(c *gin.Context) {

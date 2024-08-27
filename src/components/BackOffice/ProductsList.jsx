@@ -1,19 +1,19 @@
 import {
-    Button,
-    Container,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Paper,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    TextField,
-    Typography
+  Button,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; // Sử dụng useNavigate
@@ -31,15 +31,15 @@ import productService from "../../services/productService"; // Sử dụng dịc
     const navigate = useNavigate(); // Thay thế useHistory bằng useNavigate
   
     useEffect(() => {
-      const fetchProducts = async () => {
-        const response = await productService.getAllProducts();
-        console.log("Products", response.data);
-        setProducts(response.data);
-        if (response.data) {
-            setFilteredProducts(response.data); // Ban đầu hiển thị tất cả sản phẩm
-            }
-        };
-      fetchProducts();
+      // const fetchProducts = async () => {
+      //   // const response = await productService.getAllProducts();
+      //   // console.log("Products", response.data);
+      //   setProducts(response.data);
+      //   if (response.data) {
+      //       setFilteredProducts(response.data); // Ban đầu hiển thị tất cả sản phẩm
+      //       }
+      //   };
+      // fetchProducts();
     }, []);
   
     // Hàm để lọc sản phẩm dựa trên từ khóa tìm kiếm

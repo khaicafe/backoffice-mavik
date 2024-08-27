@@ -26,6 +26,7 @@ func CreateTemperature(c *gin.Context) {
 }
 
 func GetTemperature(c *gin.Context) {
+
 	id := c.Param("id")
 	var temperature models.Temperature
 
@@ -42,13 +43,20 @@ func GetTemperature(c *gin.Context) {
 }
 
 func GetTemperatures(c *gin.Context) {
+	columnNames, err := GetColumnNames(models.DB, &models.Temperature{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	var temperatures []models.Temperature
 	if err := models.DB.Find(&temperatures).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, temperatures)
+	// c.JSON(http.StatusOK, temperatures)
+	c.JSON(http.StatusOK, gin.H{"dataTable": temperatures, "columns": columnNames})
+
 }
 
 func UpdateTemperature(c *gin.Context) {

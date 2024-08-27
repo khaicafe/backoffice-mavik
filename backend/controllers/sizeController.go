@@ -42,13 +42,20 @@ func GetSize(c *gin.Context) {
 }
 
 func GetSizes(c *gin.Context) {
+	columnNames, err := GetColumnNames(models.DB, &models.Size{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	var sizes []models.Size
 	if err := models.DB.Find(&sizes).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, sizes)
+	// c.JSON(http.StatusOK, sizes)
+	c.JSON(http.StatusOK, gin.H{"dataTable": sizes, "columns": columnNames})
 }
 
 func UpdateSize(c *gin.Context) {

@@ -13,7 +13,13 @@ import ForgotPass from "./components/Auth/ForgotPassword";
 import Login from "./components/Auth/Login";
 import Signup from "./components/Auth/Signup";
 import AddProduct from "./components/BackOffice/AddEditProductBBK";
+import Categories from "./components/BackOffice/CategoriesList";
+import GroupModifier from "./components/BackOffice/GroupModifierList";
+import Modifier from "./components/BackOffice/ModifiersList";
 import ProductsList from "./components/BackOffice/ProductsList";
+import Size from "./components/BackOffice/SizesList";
+import Temperture from "./components/BackOffice/TemperaturesList";
+import Upload from "./components/BackOffice/UploadList";
 import UserManagement from "./components/BackOffice/UserManagement";
 import Dashboard from "./components/Dashboard/Dashboard";
 import Layout from "./components/Dashboard/Layout";
@@ -42,7 +48,25 @@ function App() {
               <Route path="/products" element={<ProductsList />} />
             </Route>
             <Route element={<PrivateRoute roles={["admin"]} />}>
+              <Route path="/Categories" element={<Categories />} />
+            </Route>
+            <Route element={<PrivateRoute roles={["admin"]} />}>
+              <Route path="/Modifiers" element={<Modifier />} />
+            </Route>
+            <Route element={<PrivateRoute roles={["admin"]} />}>
+              <Route path="/Sizes" element={<Size />} />
+            </Route>
+            <Route element={<PrivateRoute roles={["admin"]} />}>
+              <Route path="/Tempertures" element={<Temperture />} />
+            </Route>
+            <Route element={<PrivateRoute roles={["admin"]} />}>
               <Route path="/add-product" element={<AddProduct/>} />
+            </Route>
+            <Route element={<PrivateRoute roles={["admin"]} />}>
+              <Route path="/uploads" element={<Upload/>} />
+            </Route>
+            <Route element={<PrivateRoute roles={["admin"]} />}>
+              <Route path="/groupModifier" element={<GroupModifier/>} />
             </Route>
            
             <Route

@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 import { jwtDecode } from "jwt-decode";
-import React, { useState } from "react";
+import React from "react";
 import { Link, Navigate, Outlet } from "react-router-dom";
 import RightDropdownMenu from '../RightDropdownMenu';
 
@@ -73,8 +73,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 const Layout = () => {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-  const [professionalOpen, setProfessionalOpen] = useState(false);
-  const [table, setTable] = useState(false);
+
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -82,12 +81,6 @@ const Layout = () => {
 
   const handleDrawerClose = () => {
     setOpen(false);
-  };
-  const handleProfessionalClick = () => {
-    setProfessionalOpen(!professionalOpen);
-  };
-  const handleTableClick = () => {
-    setTable(!table);
   };
 
   // phân quyền
@@ -160,6 +153,42 @@ const Layout = () => {
               <PeopleIcon />
             </ListItemIcon>
             <ListItemText primary="Products" />
+          </ListItem>
+          <ListItem button component={Link} to="/Sizes">
+            <ListItemIcon>
+              <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Size" />
+          </ListItem>
+          <ListItem button component={Link} to="/Modifiers">
+            <ListItemIcon>
+              <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Modifier" />
+          </ListItem>
+          <ListItem button component={Link} to="/Tempertures">
+            <ListItemIcon>
+              <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Temperture" />
+          </ListItem>
+          <ListItem button component={Link} to="/Categories">
+            <ListItemIcon>
+              <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Categories" />
+          </ListItem>
+          <ListItem button component={Link} to="/groupModifier">
+            <ListItemIcon>
+              <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Group Modifier" />
+          </ListItem>
+          <ListItem button component={Link} to="/uploads">
+            <ListItemIcon>
+              <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Up load" />
           </ListItem>
         
         </List>
