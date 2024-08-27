@@ -11,13 +11,16 @@ const createProduct = async (product) => {
   return await axios.post(`${API_URL}`, product);
 }
 
-const getAllModifiers = () => {
-  return axios.get(MODIFIER_URL);
-};
+  // Get a single size by ID
+const getProduct = (id) => {
+    return axios.get(`${API_URL}/${id}`);
+}
+
+
 
 const Api = {
     getAllProducts,
     createProduct,
-    getAllModifiers
+    getProduct,
 };
 export default Api;

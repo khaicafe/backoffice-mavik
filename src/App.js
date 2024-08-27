@@ -12,7 +12,7 @@ import AdminSetup from "./components/Auth/AdminSetup";
 import ForgotPass from "./components/Auth/ForgotPassword";
 import Login from "./components/Auth/Login";
 import Signup from "./components/Auth/Signup";
-import AddProduct from "./components/BackOffice/AddEditProductBBK";
+import AddProduct from "./components/BackOffice/AddEditProduct";
 import Categories from "./components/BackOffice/CategoriesList";
 import GroupModifier from "./components/BackOffice/GroupModifierList";
 import Modifier from "./components/BackOffice/ModifiersList";
@@ -57,7 +57,7 @@ function App() {
               <Route path="/Sizes" element={<Size />} />
             </Route>
             <Route element={<PrivateRoute roles={["admin"]} />}>
-              <Route path="/Tempertures" element={<Temperture />} />
+              <Route path="/Temperatures" element={<Temperture />} />
             </Route>
             <Route element={<PrivateRoute roles={["admin"]} />}>
               <Route path="/add-product" element={<AddProduct/>} />

@@ -28,6 +28,10 @@ func init() {
 		&models.Categories{},
 		&models.Size{},
 		&models.Temperature{},
+		&models.Product{},
+		&models.ProductTempSize{},
+		&models.ProductGroup{},
+		&models.ProductCategories{},
 	)
 
 	models.DB = DB

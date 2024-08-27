@@ -1,15 +1,14 @@
 import {
-    CircularProgress,
-    Paper,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
+  CircularProgress,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import ImagePicker from '../BaseComponent/ImagePicker';
   
   function UploadComponent() {
     const [files, setFiles] = useState([]);
@@ -101,7 +100,7 @@ import ImagePicker from '../BaseComponent/ImagePicker';
             </TableBody>
           </Table>
         </TableContainer>
-        <ImagePicker onImageSelect={handleImageSelect} />
+        {/* <ImagePicker onImageSelect={handleImageSelect} /> */}
       </div>
     );
   }

@@ -1,10 +1,6 @@
 import {
   Button,
   Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Paper,
   Table,
   TableBody,
@@ -31,15 +27,15 @@ import productService from "../../services/productService"; // Sử dụng dịc
     const navigate = useNavigate(); // Thay thế useHistory bằng useNavigate
   
     useEffect(() => {
-      // const fetchProducts = async () => {
-      //   // const response = await productService.getAllProducts();
-      //   // console.log("Products", response.data);
-      //   setProducts(response.data);
-      //   if (response.data) {
-      //       setFilteredProducts(response.data); // Ban đầu hiển thị tất cả sản phẩm
-      //       }
-      //   };
-      // fetchProducts();
+      const fetchProducts = async () => {
+        const response = await productService.getAllProducts();
+        console.log("Products", response.data);
+        setProducts(response.data);
+        if (response.data) {
+            setFilteredProducts(response.data); // Ban đầu hiển thị tất cả sản phẩm
+            }
+        };
+      fetchProducts();
     }, []);
   
     // Hàm để lọc sản phẩm dựa trên từ khóa tìm kiếm
@@ -57,13 +53,13 @@ import productService from "../../services/productService"; // Sử dụng dịc
      
     }, [searchTerm, products]);
   
-    const handleProductSelect = (product) => {
-      setSelectedProduct(product);
-    };
-  
     const handleAddProduct = async () => {
         navigate("/add-product"); // Điều hướng đến màn hình thêm sản phẩm
     };
+
+    const handleEditProduct = async (id) => {
+      navigate(`/add-product/${id}`); // Điều hướng đến màn hình thêm sản phẩm
+  };
   
     const handleDeleteProduct = async (ID) => {
       try {
@@ -108,6 +104,7 @@ import productService from "../../services/productService"; // Sử dụng dịc
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
+                <TableCell>Image</TableCell>
                 <TableCell>Name</TableCell>
                 <TableCell>Description</TableCell>
                 <TableCell>Type</TableCell>
@@ -118,13 +115,14 @@ import productService from "../../services/productService"; // Sử dụng dịc
               {filteredProducts.map((product, index) => (
                 <TableRow key={index}>
                   <TableCell>{index}</TableCell>
+                  <TableCell> <img src={product.image_link_square} alt={product.image_link_square} style={{ width: 100 }} /></TableCell>
                   <TableCell>{product.name}</TableCell>
                   <TableCell>{product.description}</TableCell>
                   <TableCell>{product.type}</TableCell>
                   <TableCell>
                     <Button
                       variant="outlined"
-                      onClick={() => handleProductSelect(product)}
+                      onClick={() => handleEditProduct(product)}
                       style={{ marginRight: "10px" }}
                     >
                       Edit
@@ -143,91 +141,7 @@ import productService from "../../services/productService"; // Sử dụng dịc
           </Table>
         </TableContainer>
   
-        {selectedProduct && (
-          <Container>
-            <Typography variant="h6" gutterBottom>
-              Edit Product
-            </Typography>
-            <TextField
-              label="Name"
-              value={selectedProduct.name}
-              fullWidth
-              margin="normal"
-              onChange={(e) =>
-                setSelectedProduct({ ...selectedProduct, name: e.target.value })
-              }
-            />
-            <TextField
-              label="Description"
-              value={selectedProduct.description}
-              fullWidth
-              margin="normal"
-              onChange={(e) =>
-                setSelectedProduct({ ...selectedProduct, description: e.target.value })
-              }
-            />
-            <TextField
-              label="Price"
-              value={selectedProduct.price}
-              fullWidth
-              margin="normal"
-              onChange={(e) =>
-                setSelectedProduct({ ...selectedProduct, price: e.target.value })
-              }
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleAddProduct} // Thêm hành động cập nhật sản phẩm
-            >
-              Save Changes
-            </Button>
-          </Container>
-        )}
-  
-        {/* Dialog để thêm sản phẩm mới */}
-        <Dialog
-          open={openAddProductDialog}
-          onClose={() => setOpenAddProductDialog(false)}
-        >
-          <DialogTitle>Add New Product</DialogTitle>
-          <DialogContent>
-            <TextField
-              label="Name"
-              value={newProduct.name}
-              onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-              fullWidth
-              margin="dense"
-            />
-            <TextField
-              label="Description"
-              value={newProduct.description}
-              onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
-              fullWidth
-              margin="dense"
-            />
-            <TextField
-              label="Price"
-              value={newProduct.price}
-              onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-              fullWidth
-              margin="dense"
-            />
-            {error && (
-              <Typography color="error" variant="body2">
-                {error}
-              </Typography>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenAddProductDialog(false)} color="secondary">
-              Cancel
-            </Button>
-            <Button onClick={handleAddProduct} color="primary">
-              Save
-            </Button>
-          </DialogActions>
-        </Dialog>
+        
       </Container>
     );
   };

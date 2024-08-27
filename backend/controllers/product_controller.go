@@ -31,7 +31,7 @@ func GetProducts(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": products})
+	c.JSON(http.StatusOK, products)
 }
 
 // GetProduct - Lấy thông tin sản phẩm theo ID

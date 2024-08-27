@@ -152,7 +152,7 @@ const Layout = () => {
             <ListItemIcon>
               <PeopleIcon />
             </ListItemIcon>
-            <ListItemText primary="Products" />
+            <ListItemText primary="Product" />
           </ListItem>
           <ListItem button component={Link} to="/Sizes">
             <ListItemIcon>
@@ -166,17 +166,17 @@ const Layout = () => {
             </ListItemIcon>
             <ListItemText primary="Modifier" />
           </ListItem>
-          <ListItem button component={Link} to="/Tempertures">
+          <ListItem button component={Link} to="/Temperatures">
             <ListItemIcon>
               <PeopleIcon />
             </ListItemIcon>
-            <ListItemText primary="Temperture" />
+            <ListItemText primary="Temperature" />
           </ListItem>
           <ListItem button component={Link} to="/Categories">
             <ListItemIcon>
               <PeopleIcon />
             </ListItemIcon>
-            <ListItemText primary="Categories" />
+            <ListItemText primary="Category" />
           </ListItem>
           <ListItem button component={Link} to="/groupModifier">
             <ListItemIcon>

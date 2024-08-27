@@ -28,7 +28,7 @@ type ProductGroup struct {
 	gorm.Model
 	ProductID int     `json:"product_id"`
 	GroupID   int     `json:"group_id"`
-	Type      int     `json:"type"`
+	Type      bool    `json:"type"`
 	Product   Product `gorm:"foreignKey:ProductID"`
 	Group     Group   `gorm:"foreignKey:GroupID"`
 }
