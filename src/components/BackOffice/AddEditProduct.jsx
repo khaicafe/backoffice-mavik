@@ -54,6 +54,7 @@ const AddProductForm = () => {
     const [tempertures, setTempertures] = useState([]);
     const [variations, setVariations] = useState([]);
     const [selectedVariations, setSelectedVariations] = useState([]);
+    const [selectedCategories, setSelectedCategories] = useState([]);
     const [prices, setPrices] = useState({});
     const [showTable, setShowTable] = useState(false);
     const [open, setOpen] = useState(false);
@@ -209,18 +210,30 @@ const AddProductForm = () => {
     const handleModifierModalOpen = () => setOpenModifierModal(true); // Open Modifier modal
     const handleModifierModalClose = () => setOpenModifierModal(false); // Close Modifier modal
 
- 
+    const [categoriesLoaded, setCategoriesLoaded] = useState(false);
 
     useEffect(() => {
-        fetchCategories();
-        fetchModifiers();
-        fetchTempertures();
-        fetchSizes();
-        fetchGroupModifiers(); // Fetch existing group modifiers
-        if (id) {
-            fetchProduct(id);
-          }
-    }, [id]);
+        const fetchData = async () => {
+            await fetchCategories();
+            setCategoriesLoaded(true); // Đánh dấu rằng categories đã được load xong
+        };
+    
+        fetchData();
+    }, []); // Chạy một lần khi component mount
+
+   useEffect(() => {
+        if (categoriesLoaded) {
+            // Chỉ chạy khi categories đã được load xong
+            fetchModifiers();
+            fetchTempertures();
+            fetchSizes();
+            fetchGroupModifiers();
+
+            if (id) {
+                fetchProduct(id); // Chỉ thực hiện sau khi tất cả dữ liệu khác đã được tải xong
+            }
+        }
+    }, [categoriesLoaded, id]); // Chỉ chạy khi categoriesLoaded hoặc id thay đổi
 
 
 
@@ -240,40 +253,98 @@ const AddProductForm = () => {
         }
     }, [tempertures, sizes]);
 
+   
+
     const fetchProduct = async (id) => {
-        const response = await recipeService.getRecipeById(recipeId);
-        const recipe = response.data.recipe;
-    
-        const selected = recipe.recipe_ingredients.map((ri) => ({
-          ...ri.ingredient,
-          quantity: ri.quantity,
-          variegate: ri.variegate,
+        const response = await Product.getProduct(id);
+        console.log('edit', response.data)
+        const data = response.data;
+
+       
+        const categoriesIds = data.product_categories.map(item => item.categories_id);
+
+        // Chỉ lọc sau khi categories đã được load xong
+        if (categories.length > 0) {
+            const filteredB = categories.filter(item => categoriesIds.includes(item.ID));
+            setSelectedCategories(filteredB);
+            console.log('filteredB', filteredB);
+        } else {
+            console.log('Categories chưa load kịp');
+        }
+     
+
+        // option
+
+       // Map product_temp_sizes thành selectedVariations và variations
+       const selected = data.product_temp_sizes.map((item) => ({
+            variation: `${item.Temperature.name}, ${item.Size.name}`,
+            price: item.price,
+            currency: item.currency,
+            default: item.default,
+            temperature_id: item.temperature_id,
+            size_id: item.size_id,
         }));
-    
-        setSelectedIngredients(selected);
+        setShowTable(true);
+        console.log(selected);
+
+        // Cập nhật state cho cả selectedVariations và variations
+        setSelectedVariations(selected);
+        setVariations(selected);
+
+        // modifier
+        setSelectedGroupModifiers(data.product_groups.map(group => {
+            // Ensure that Group and group_modifiers are not null or undefined
+            const groupModifiers = group.Group?.group_modifiers || [];
+        
+            return {
+                ID: group.ID,
+                Name: group.Group?.name || "",  // If name is not available, use an empty string
+                MinQty: group.Group?.min_qty || 0,
+                MaxQty: group.Group?.max_qty || 0,
+                Modifier: groupModifiers.map(item => ({
+                    ID: item.ID,
+                    group_id: item.group_id,
+                    modifier_id: item.modifier_id,
+                    Default: item.default,
+                    Name: item.Modifier?.name || "",  // Check if Modifier is available
+                    Price: item.Modifier?.price || 0,
+                    Currency: item.Modifier?.currency || ""
+                })),
+                type: group.type
+            };
+        }));
+
+
+        // Cập nhật URL hình ảnh nếu có
+        setImageURL(data.image_link_square);
+        console.log(data.image_link_square)
+        formValues.imagelink_square = data.image_link_square;
+
     
         setFormValues({
-          name: recipe.name,
-          recipe_type_id: recipe.recipe_type_id,
-          flavour_notes: recipe.flavour_notes.map((fn) => fn.ID),
-          location_made: recipe.location_made,
-          overrun: recipe.overrun,
-          flavour: recipe.flavour,
-          description: recipe.description,
-          amount_to_make: recipe.amount_to_make,
-          date: recipe.date || new Date().toISOString().split("T")[0],
-          ingredients: selected.map((ing) => ({
-            id: ing.ID,
-            quantity: ing.quantity,
-            variegate: ing.variegate,
-          })),
+            id: data.ID,
+            name: data.name,
+            description: data.description, //
+            average_rating: data.average_rating,
+            discount: data.discount,
+            favourite: data.favourite,
+            imagelink_portrait: data.imagelink_portrait,
+            imagelink_square: data.imagelink_square,
+            ingredients: data.ingredients,
+            options: [],
+            modifiers: [],
+            ratings_count: data.ratings_count,
+            roasted: data.roasted,
+            special_ingredient: data.special_ingredient,
+            Categories: []
         });
-      };
+    };
 
     const fetchCategories = async () => {
         try {
             const response = await CategoryService.getAllCategories();
             setCategories(response.data.dataTable || []);
+            console.log('fetchCategories',response.data.dataTable)
         } catch (error) {
             console.error("Failed to fetch categories:", error);
             setCategories([]);
@@ -284,7 +355,7 @@ const AddProductForm = () => {
         try {
             const response = await Temperture.getAllTemperatures();
             setTempertures(response.data.dataTable || []);
-            console.log('setTempertures', response.data.dataTable);
+            // console.log('setTempertures', response.data.dataTable);
         } catch (error) {
             console.error("Failed to fetch temperatures:", error);
             setTempertures([]);
@@ -295,7 +366,7 @@ const AddProductForm = () => {
         try {
             const response = await Modifiers.getAllModifiers();
             setModifiers(response.data.dataTable || []);
-            console.log('modifier', response.data.dataTable);
+            // console.log('modifier', response.data.dataTable);
         } catch (error) {
             console.error("Failed to fetch modifiers:", error);
             setModifiers([]);
@@ -306,7 +377,7 @@ const AddProductForm = () => {
         try {
             const response = await Size.getAllSizes();
             setSizes(response.data.dataTable || []);
-            console.log('setSizes',response.data.dataTable);
+            // console.log('setSizes',response.data.dataTable);
         } catch (error) {
             console.error("Failed to fetch sizes:", error);
             setSizes([]);
@@ -317,7 +388,7 @@ const AddProductForm = () => {
         try {
             const response = await GroupService.getAllGroupModifiers(); // Use GroupService to fetch group modifiers
             setGroupModifiers(response.data || []);
-            console.log('fetchGroupModifiers',response.data);
+            // console.log('fetchGroupModifiers',response.data);
         } catch (error) {
             console.error("Failed to fetch group modifiers:", error);
             setGroupModifiers([]);
@@ -393,6 +464,8 @@ const AddProductForm = () => {
 
     // category
     const handleCategoriesChange = (event, value) => {
+        console.log('category', value);
+        setSelectedCategories(value); 
         value = value.map(category => {
             category.categories_id = category.ID;
             return category;
@@ -402,7 +475,8 @@ const AddProductForm = () => {
     // image
     const handleImageSelect = (url) => {
         console.log('Selected URL:', url);
-        formValues.imagelink_square = url;
+        // formValues.imagelink_square = url;
+        setImageURL(url);
       };
 
     // check field input
@@ -426,8 +500,8 @@ const AddProductForm = () => {
             "name": formValues.name,
             "description": formValues.description,
             "roasted": "Dark Roasted",
-            "image_link_square": formValues.imagelink_square,
-            "image_link_portrait": formValues.imagelink_portrait,
+            "image_link_square": imageURL,
+            "image_link_portrait": imageURL,
             "ingredients": "Coffee beans, Water",
             "special_ingredient": "Single Origin",
             "discount": 0,
@@ -505,6 +579,7 @@ const AddProductForm = () => {
                         multiple
                         disableCloseOnSelect
                         options={groupModifiers}
+                        value={selectedGroupModifiers}  // Đặt giá trị đã chọn vào đây
                         getOptionLabel={(option) =>{
                             return option ? option.Name || "" : ""; // Đảm bảo trả về một chuỗi hợp lệ
                           }}
@@ -586,7 +661,7 @@ const AddProductForm = () => {
                                             {groupModifier.Modifier.map((modifier, index) => (
                                                 <TableRow key={index}>
                                                     <TableCell>{modifier.Name}</TableCell>
-                                                    <TableCell>{modifier.Price}</TableCell>
+                                                    <TableCell>{modifier.Currency} {modifier.Price}</TableCell>
                                                     <TableCell>{modifier.Default ? "True" : "False"}</TableCell>
                                                 </TableRow>
                                             ))}
@@ -650,7 +725,7 @@ const AddProductForm = () => {
                                         <TableCell align="center">
                                             <Checkbox
                                                 checked={variation.default || false}
-                                                onChange={(e) => handleDefaultChoiceChange(index, e.target.checked)}
+                                                onChange={(e) => handleDefaultChoiceChange(index)}
                                             />
                                         </TableCell>
                                     </TableRow>
@@ -667,7 +742,7 @@ const AddProductForm = () => {
                 <Typography variant="h6" component="h3" gutterBottom>
                     Product image
                 </Typography>
-                <ImagePicker onImageSelect={handleImageSelect} />
+                <ImagePicker onImageSelect={handleImageSelect} defaultImage= {imageURL}/>
             </Grid>
 
             {/* category */}           
@@ -679,6 +754,7 @@ const AddProductForm = () => {
                 <Autocomplete
                     multiple
                     options={categories}
+                    value={selectedCategories}  // Đặt giá trị đã chọn vào đây
                     getOptionLabel={(option) =>{
                         return option ? option.name || "" : ""; // Đảm bảo trả về một chuỗi hợp lệ
                       }}

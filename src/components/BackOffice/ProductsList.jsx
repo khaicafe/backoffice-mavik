@@ -122,7 +122,7 @@ import productService from "../../services/productService"; // Sử dụng dịc
                   <TableCell>
                     <Button
                       variant="outlined"
-                      onClick={() => handleEditProduct(product)}
+                      onClick={() => handleEditProduct(product.ID)}
                       style={{ marginRight: "10px" }}
                     >
                       Edit

@@ -60,7 +60,7 @@ function App() {
               <Route path="/Temperatures" element={<Temperture />} />
             </Route>
             <Route element={<PrivateRoute roles={["admin"]} />}>
-              <Route path="/add-product" element={<AddProduct/>} />
+              <Route path="/add-product/:id?" element={<AddProduct/>} />
             </Route>
             <Route element={<PrivateRoute roles={["admin"]} />}>
               <Route path="/uploads" element={<Upload/>} />

@@ -39,12 +39,18 @@ func GetProduct(c *gin.Context) {
 	id := c.Param("id")
 	var product models.Product
 
-	if err := models.DB.Preload("ProductGroups").Preload("ProductTempsSizes").Preload("ProductCategories").First(&product, id).Error; err != nil {
+	if err := models.DB.
+		Preload("ProductGroups.Group.GroupModifiers.Modifier").
+		Preload("ProductTempsSizes.Temperature"). // Preload Temperature
+		Preload("ProductTempsSizes.Size").        // Preload Size
+		Preload("ProductCategories").
+		First(&product, id).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": product})
+	c.JSON(http.StatusOK, product)
+
 }
 
 // UpdateProduct - Cập nhật thông tin sản phẩm theo ID

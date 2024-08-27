@@ -1,20 +1,19 @@
 import {
-    Box,
-    Button,
-    CircularProgress,
-    Modal,
-    Paper,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Typography,
+  Box,
+  Button,
+  CircularProgress,
+  Modal,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 
-const defaultImage = 'https://via.placeholder.com/150'; // Default image when none is selected
 
 const modalStyle = {
   position: 'absolute',
@@ -28,8 +27,10 @@ const modalStyle = {
   p: 4,
 };
 
-function ImagePicker({ onImageSelect }) {
-  const [selectedImage, setSelectedImage] = useState(defaultImage);
+function ImagePicker({ onImageSelect, defaultImage}) {
+  const defaultImages = defaultImage ? defaultImage : 'https://via.placeholder.com/150'; // Default image when none is selected
+
+  const [selectedImage, setSelectedImage] = useState(defaultImages);
   const [open, setOpen] = useState(false);
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,7 +42,10 @@ function ImagePicker({ onImageSelect }) {
     fetch('http://localhost:8080/images')
       .then(response => response.json())
       .then(data => {
-        setImages(data.data);
+       
+          setImages(data.data);
+         
+        
         setLoading(false);
       })
       .catch(error => {
@@ -50,7 +54,13 @@ function ImagePicker({ onImageSelect }) {
       });
   }, []);
 
+  useEffect(() => {
+    console.log('images loaded', defaultImage);
+    setSelectedImage(defaultImage);
+  }, [defaultImage]);
+
   const handleImageSelect = (image) => {
+    console.log('Select image', image)
     setSelectedImage(image.URL);
     handleClose();
     onImageSelect(image.URL); // Pass the URL to the parent component
@@ -94,7 +104,9 @@ function ImagePicker({ onImageSelect }) {
                     style={{ cursor: 'pointer' }}
                   >
                     <TableCell component="th" scope="row">
-                      <img src={image.URL} alt={image.FileName} style={{ width: 50 }} />
+                     
+                    <img src={image.URL} alt={image.FileName} style={{ width: 50 }} />
+                    
                     </TableCell>
                     <TableCell align="left">{image.FileName}</TableCell>
                   </TableRow>
