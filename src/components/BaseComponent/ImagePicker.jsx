@@ -28,7 +28,7 @@ const modalStyle = {
 };
 
 function ImagePicker({ onImageSelect, defaultImage}) {
-  const defaultImages = defaultImage ? defaultImage : 'https://via.placeholder.com/150'; // Default image when none is selected
+  const defaultImages = 'https://via.placeholder.com/150'; // Default image when none is selected
 
   const [selectedImage, setSelectedImage] = useState(defaultImages);
   const [open, setOpen] = useState(false);
@@ -55,8 +55,11 @@ function ImagePicker({ onImageSelect, defaultImage}) {
   }, []);
 
   useEffect(() => {
+    if (defaultImage){
+      setSelectedImage(defaultImage);
+      
+    }
     console.log('images loaded', defaultImage);
-    setSelectedImage(defaultImage);
   }, [defaultImage]);
 
   const handleImageSelect = (image) => {

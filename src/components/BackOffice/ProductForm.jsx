@@ -22,9 +22,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import CategoryService from "../../services/CategoryService";
 import GroupService from "../../services/GroupModifierService"; // Import the service for Group CRUD operations
 import Modifiers from "../../services/ModifierService";
+import Product from "../../services/ProductService";
 import Size from "../../services/SizeService";
 import Temperture from "../../services/TemperatureService";
-import Product from "../../services/productService";
 import { COLORS } from "../../theme/themeColor";
 import ImagePicker from '../BaseComponent/ImagePicker';
 
@@ -34,6 +34,8 @@ const AddProductForm = () => {
         name: "", //
         description: "", //
         average_rating: 0,
+        price: 0,
+        type: "", //
         discount: 0,
         favourite: false,
         imagelink_portrait: "",
@@ -44,17 +46,17 @@ const AddProductForm = () => {
         ratings_count: "0",
         roasted: "",
         special_ingredient: "",
-        Categories: []
+        Category: []
     };
 
     const [formValues, setFormValues] = useState(initialFormValues);
-    const [categories, setCategories] = useState([]);
+    const [category, setCategory] = useState([]);
     const [sizes, setSizes] = useState([]);
     const [modifiers, setModifiers] = useState([]);
     const [tempertures, setTempertures] = useState([]);
     const [variations, setVariations] = useState([]);
     const [selectedVariations, setSelectedVariations] = useState([]);
-    const [selectedCategories, setSelectedCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState([]);
     const [prices, setPrices] = useState({});
     const [showTable, setShowTable] = useState(false);
     const [open, setOpen] = useState(false);
@@ -183,9 +185,17 @@ const AddProductForm = () => {
 
     
     const handleGroupModifierChange = (event, value) => {
-        console.log('handleGroupModifierChange',value)
-        setSelectedGroupModifiers(value);
-        formValues.modifiers = value
+        const updatedArray = value.map(item => {
+            // thêm field type default customize false
+            if (item.type === undefined) {
+                return { ...item, type: false };
+            }
+            return item;
+        });
+        console.log('handleGroupModifierChange',updatedArray)
+
+        setSelectedGroupModifiers(updatedArray);
+        // formValues.modifiers = updatedArray
     };
 
     const handleCustomizeSelect = (value) => {
@@ -194,12 +204,12 @@ const AddProductForm = () => {
             if (item.ID === value.ID) {
                 return { ...item, type: !item.type };
             
-            } else if (item.type === undefined) {
+            // } else if (item.type === undefined) {
                 // return { ...item, type: false };
             }
             return item;
         });
-        // console.log('updatedArray', updatedArray);
+        console.log('updatedArray', updatedArray);
         setSelectedGroupModifiers(updatedArray);
     };
      
@@ -210,20 +220,20 @@ const AddProductForm = () => {
     const handleModifierModalOpen = () => setOpenModifierModal(true); // Open Modifier modal
     const handleModifierModalClose = () => setOpenModifierModal(false); // Close Modifier modal
 
-    const [categoriesLoaded, setCategoriesLoaded] = useState(false);
+    const [categoryLoaded, setCategoryLoaded] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
-            await fetchCategories();
-            setCategoriesLoaded(true); // Đánh dấu rằng categories đã được load xong
+            await fetchCategory();
+            setCategoryLoaded(true); // Đánh dấu rằng category đã được load xong
         };
     
         fetchData();
     }, []); // Chạy một lần khi component mount
 
    useEffect(() => {
-        if (categoriesLoaded) {
-            // Chỉ chạy khi categories đã được load xong
+        if (categoryLoaded) {
+            // Chỉ chạy khi category đã được load xong
             fetchModifiers();
             fetchTempertures();
             fetchSizes();
@@ -233,7 +243,7 @@ const AddProductForm = () => {
                 fetchProduct(id); // Chỉ thực hiện sau khi tất cả dữ liệu khác đã được tải xong
             }
         }
-    }, [categoriesLoaded, id]); // Chỉ chạy khi categoriesLoaded hoặc id thay đổi
+    }, [categoryLoaded, id]); // Chỉ chạy khi categoryLoaded hoặc id thay đổi
 
 
 
@@ -261,15 +271,15 @@ const AddProductForm = () => {
         const data = response.data;
 
        
-        const categoriesIds = data.product_categories.map(item => item.categories_id);
+        const categoryIds = data.product_category.map(item => item.category_id);
 
-        // Chỉ lọc sau khi categories đã được load xong
-        if (categories.length > 0) {
-            const filteredB = categories.filter(item => categoriesIds.includes(item.ID));
-            setSelectedCategories(filteredB);
-            console.log('filteredB', filteredB);
+        // Chỉ lọc sau khi category đã được load xong
+        if (category.length > 0) {
+            const filteredB = category.filter(item => categoryIds.includes(item.ID));
+            setSelectedCategory(filteredB);
+            // console.log('filteredB', filteredB);
         } else {
-            console.log('Categories chưa load kịp');
+            console.log('Category chưa load kịp');
         }
      
 
@@ -277,7 +287,7 @@ const AddProductForm = () => {
 
        // Map product_temp_sizes thành selectedVariations và variations
        const selected = data.product_temp_sizes.map((item) => ({
-            variation: `${item.Temperature.name}, ${item.Size.name}`,
+            variation: `${item.temperature.name}, ${item.size.name}`,
             price: item.price,
             currency: item.currency,
             default: item.default,
@@ -292,25 +302,23 @@ const AddProductForm = () => {
         setVariations(selected);
 
         // modifier
-        setSelectedGroupModifiers(data.product_groups.map(group => {
+        setSelectedGroupModifiers(data.product_groups.map(product_group => {
             // Ensure that Group and group_modifiers are not null or undefined
-            const groupModifiers = group.Group?.group_modifiers || [];
+            const groupModifiers = product_group.group?.group_modifiers || [];
         
             return {
-                ID: group.ID,
-                Name: group.Group?.name || "",  // If name is not available, use an empty string
-                MinQty: group.Group?.min_qty || 0,
-                MaxQty: group.Group?.max_qty || 0,
+                ID: product_group.ID,
+                Name: product_group.group?.name || "",  // If name is not available, use an empty string
+                MinQty: product_group.group?.min_qty || 0,
+                MaxQty: product_group.group?.max_qty || 0,
+                type: product_group.type,
                 Modifier: groupModifiers.map(item => ({
-                    ID: item.ID,
-                    group_id: item.group_id,
-                    modifier_id: item.modifier_id,
+                    ID: item.modifier_id,
                     Default: item.default,
                     Name: item.Modifier?.name || "",  // Check if Modifier is available
                     Price: item.Modifier?.price || 0,
                     Currency: item.Modifier?.currency || ""
                 })),
-                type: group.type
             };
         }));
 
@@ -326,6 +334,8 @@ const AddProductForm = () => {
             name: data.name,
             description: data.description, //
             average_rating: data.average_rating,
+            price: data.price,
+            type: data.type,
             discount: data.discount,
             favourite: data.favourite,
             imagelink_portrait: data.imagelink_portrait,
@@ -336,18 +346,18 @@ const AddProductForm = () => {
             ratings_count: data.ratings_count,
             roasted: data.roasted,
             special_ingredient: data.special_ingredient,
-            Categories: []
+            Category: []
         });
     };
 
-    const fetchCategories = async () => {
+    const fetchCategory = async () => {
         try {
             const response = await CategoryService.getAllCategories();
-            setCategories(response.data.dataTable || []);
-            console.log('fetchCategories',response.data.dataTable)
+            setCategory(response.data.dataTable || []);
+            // console.log('fetchCategory',response.data.dataTable)
         } catch (error) {
-            console.error("Failed to fetch categories:", error);
-            setCategories([]);
+            console.error("Failed to fetch category:", error);
+            setCategory([]);
         }
     };
 
@@ -406,7 +416,7 @@ const AddProductForm = () => {
     /// variation
 
     const handleVariationSelect = (variation) => {
-        // console.log('handleVariationSelect',variation)
+        console.log('handleVariationSelect',variation)
         let updatedSelections = [...selectedVariations];
 
         const index = updatedSelections.findIndex(v => v.variation === variation.variation);
@@ -423,7 +433,11 @@ const AddProductForm = () => {
                 currency: variation.currency || "$",
             });
         }
-        updatedSelections[0].default = true; 
+        if(updatedSelections.length > 0) {
+            // console.log(updatedSelections)
+            updatedSelections[0].default = true; 
+        }
+
         setSelectedVariations(updatedSelections);
     };
 
@@ -463,14 +477,14 @@ const AddProductForm = () => {
     };
 
     // category
-    const handleCategoriesChange = (event, value) => {
+    const handleCategoryChange = (event, value) => {
         console.log('category', value);
-        setSelectedCategories(value); 
+        setSelectedCategory(value); 
         value = value.map(category => {
-            category.categories_id = category.ID;
+            category.category_id = category.ID;
             return category;
         });
-        formValues.Categories = value;
+        formValues.Category = value;
     };
     // image
     const handleImageSelect = (url) => {
@@ -480,25 +494,35 @@ const AddProductForm = () => {
       };
 
     // check field input
-    
-    
+     // Hàm này chuyên để cập nhật giá sản phẩm
+     const handlePriceProductChange = (e) => {
+        const value = e.target.value;
+
+        // Chuyển giá trị từ chuỗi sang số và đảm bảo giá trị không phải là số âm
+        if (!isNaN(value) && Number(value) >= 0) {
+            setFormValues({
+                ...formValues,
+                price: parseFloat(value)
+            });
+        }
+    };
     // save product information
 
     const handleSave = async () => {
-        const updated_selectedGroupModifiers = selectedGroupModifiers.map(item => {
-            item.group_id = item.ID
-            // Kiểm tra nếu object chưa có field `type` thì thêm vào với giá trị `false`
-            if (!item.hasOwnProperty('type')) {
-                return { ...item, type: false };
-            }
-            return item;
-        });
+      
+        const updated_selectedGroupModifiers = selectedGroupModifiers.map(group => ({
+            ...group,
+            group_id: group.ID
+        }));
+        
         
         console.log(updated_selectedGroupModifiers);
 
         const productData = {
             "name": formValues.name,
             "description": formValues.description,
+            "price": formValues.price,
+            // "currency": formValues.currency,
             "roasted": "Dark Roasted",
             "image_link_square": imageURL,
             "image_link_portrait": imageURL,
@@ -510,17 +534,28 @@ const AddProductForm = () => {
             "favourite": true,
             "product_groups": updated_selectedGroupModifiers,
             "product_temp_sizes": selectedVariations,
-            "product_categories": formValues.Categories
+            "product_category": formValues.Category
         }
         
         console.log("Product data to be saved:", productData);
-        // Here you can call your API to save the product data
-        try {
-            const response = await Product.createProduct(productData);
-            console.log("Product saved successfully:", response.data);
-        } catch (error) {
-            console.error("Failed to fetch categories:", error);
+        if (id) {
+             // Here you can call your API to save the product data
+            try {
+                const response = await Product.updateProduct(id, productData);
+                console.log("Product updated successfully:", response.data);
+            } catch (error) {
+                console.error("Failed to fetch product:", error);
+            }
+        }else {
+             // Here you can call your API to save the product data
+            try {
+                const response = await Product.createProduct(productData);
+                console.log("Product saved successfully:", response.data);
+            } catch (error) {
+                console.error("Failed to fetch product:", error);
+            }
         }
+       
 
     };
 
@@ -529,6 +564,14 @@ const AddProductForm = () => {
 
     return (
         <Grid container spacing={2}>
+            {/* image */}
+            <Grid item xs={12} sm={6}>
+                <Typography variant="h6" component="h3" gutterBottom>
+                    Product image
+                </Typography>
+                <ImagePicker onImageSelect={handleImageSelect} defaultImage= {imageURL}/>
+            </Grid>
+
             <Grid item xs={12} sm={6}>
                 <Typography variant="h6" component="h3" gutterBottom>
                     Product Name
@@ -542,6 +585,7 @@ const AddProductForm = () => {
                     margin="dense"
                 />
             </Grid>
+
             <Grid item xs={12} sm={6}>
                 <Typography variant="h6" component="h3" gutterBottom>
                     Description
@@ -553,6 +597,23 @@ const AddProductForm = () => {
                     onChange={handleChange}
                     fullWidth
                     margin="dense"
+                />
+            </Grid>
+            
+            {/* price  */}
+            <Grid item xs={12} sm={6}>
+                <Typography variant="h6" component="h3" gutterBottom>
+                    Price Product
+                </Typography>
+                <TextField
+                    label="Price"
+                    type="number"
+                    name="price"
+                    value={formValues.price}
+                    onChange={handlePriceProductChange} // Sử dụng hàm handlePriceChange để cập nhật giá
+                    variant="outlined"
+                    fullWidth
+                    InputProps={{ inputProps: { min: 0 } }} // Đảm bảo không nhập số âm
                 />
             </Grid>
 
@@ -580,6 +641,10 @@ const AddProductForm = () => {
                         disableCloseOnSelect
                         options={groupModifiers}
                         value={selectedGroupModifiers}  // Đặt giá trị đã chọn vào đây
+                        isOptionEqualToValue={(option, value) =>
+                            // fix warning
+                            option.ID === value.ID
+                        } // Tùy chỉnh cách so sánh
                         getOptionLabel={(option) =>{
                             return option ? option.Name || "" : ""; // Đảm bảo trả về một chuỗi hợp lệ
                           }}
@@ -674,6 +739,8 @@ const AddProductForm = () => {
                 )}
             </Grid>
            
+           
+           
             {/* Options */}
             <Grid item xs={12} sm={6}>
                 <Typography variant="h6" component="h3" gutterBottom>
@@ -737,28 +804,23 @@ const AddProductForm = () => {
             )}
             </Grid>
 
-            {/* image */}
-            <Grid item xs={12} sm={6}>
-                <Typography variant="h6" component="h3" gutterBottom>
-                    Product image
-                </Typography>
-                <ImagePicker onImageSelect={handleImageSelect} defaultImage= {imageURL}/>
-            </Grid>
-
             {/* category */}           
             <Grid item xs={12} sm={6}>
                 <Typography variant="h6" component="h3" gutterBottom>
-                    Categories
+                    Category
                 </Typography>
-                {/* Autocomplete for selecting existing Group Modifiers */}
                 <Autocomplete
                     multiple
-                    options={categories}
-                    value={selectedCategories}  // Đặt giá trị đã chọn vào đây
+                    options={category}
+                    value={selectedCategory}  // Đặt giá trị đã chọn vào đây
+                    isOptionEqualToValue={(option, value) =>
+                        // fix warning
+                        option.ID === value.ID
+                    } // Tùy chỉnh cách so sánh
                     getOptionLabel={(option) =>{
                         return option ? option.name || "" : ""; // Đảm bảo trả về một chuỗi hợp lệ
                       }}
-                    onChange={handleCategoriesChange}
+                    onChange={handleCategoryChange}
                     sx={{
                         flex: 1, // Để các nút có kích thước bằng nhau
                     }}
@@ -766,8 +828,8 @@ const AddProductForm = () => {
                         <TextField
                             {...params}
                             variant="outlined"
-                            label="Search Categories"
-                            placeholder="Select Categories"
+                            label="Search Category"
+                            placeholder="Select Category"
                         />
                     )}
                 />
@@ -843,7 +905,7 @@ const AddProductForm = () => {
                                                     variant="outlined"
                                                     InputLabelProps={{ shrink: true }}
                                                     size="small"
-                                                    value={selected.currency || "$"}
+                                                    value={selected.currency !== undefined ? selected.currency : '$'}
                                                     onChange={(e) => handleCurrencyChange(variation.variation, e.target.value)}
                                                     fullWidth
                                                 />
@@ -856,7 +918,7 @@ const AddProductForm = () => {
                                                     variant="outlined"
                                                     InputLabelProps={{ shrink: true }}
                                                     size="small"
-                                                    value={selected.price}
+                                                    value={selected.price !== undefined ? selected.price : 0}
                                                     onChange={(e) => handlePriceChange(variation.variation, parseFloat(e.target.value))}
                                                     fullWidth
                                                 />

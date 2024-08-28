@@ -90,7 +90,7 @@ func SetupRouter() *gin.Engine {
 	r.POST("/api/group-modifiers", controllers.CreateGroupModifier)
 	r.GET("/api/group-modifiers", controllers.GetAllGroupModifiers)
 
-	// Categories Routes
+	// Category Routes
 	r.POST("/api/category", controllers.CreateCategory)
 	r.GET("/api/category/:id", controllers.GetCategory)
 	r.GET("/api/categories", controllers.GetCategories)
@@ -110,6 +110,20 @@ func SetupRouter() *gin.Engine {
 	r.GET("/api/temperatures", controllers.GetTemperatures)
 	r.PUT("/api/temperature/:id", controllers.UpdateTemperature)
 	r.DELETE("/api/temperature/:id", controllers.DeleteTemperature)
+
+	// Combo Routes
+	r.GET("/api/combos", controllers.GetCombos)
+	r.GET("/api/combos/:id", controllers.GetComboByID)
+	r.POST("/api/combos", controllers.CreateCombo)
+	r.PUT("/api/combos/:id", controllers.UpdateCombo)
+	r.DELETE("/api/combos/:id", controllers.DeleteCombo)
+
+	// Menu Routes
+	r.GET("/api/menus", controllers.GetMenus)
+	r.GET("/api/menus/:id", controllers.GetMenuByID)
+	r.POST("/api/menus", controllers.CreateMenu)
+	r.PUT("/api/menus/:id", controllers.UpdateMenu)
+	r.DELETE("/api/menus/:id", controllers.DeleteMenu)
 
 	// Protected routes
 	auth := r.Group("/")

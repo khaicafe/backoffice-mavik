@@ -25,13 +25,18 @@ func init() {
 		&models.Modifier{},
 		&models.GroupModifier{},
 		&models.Group{},
-		&models.Categories{},
+		&models.Category{},
 		&models.Size{},
 		&models.Temperature{},
 		&models.Product{},
 		&models.ProductTempSize{},
 		&models.ProductGroup{},
-		&models.ProductCategories{},
+		&models.ProductCategory{},
+		//combo
+		&models.ProductCombo{},
+		&models.Combo{},
+		&models.ComboCategory{},
+		&models.Menu{},
 	)
 
 	models.DB = DB

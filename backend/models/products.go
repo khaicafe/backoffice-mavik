@@ -7,30 +7,32 @@ import (
 // Product model
 type Product struct {
 	gorm.Model
-	Name              string              `json:"name"`
-	Description       string              `json:"description"`
-	Roasted           string              `json:"roasted"`
-	ImageLinkSquare   string              `json:"image_link_square"`
-	ImageLinkPortrait string              `json:"image_link_portrait"`
-	Ingredients       string              `json:"ingredients"`
-	SpecialIngredient string              `json:"special_ingredient"`
-	Discount          float64             `json:"discount"`
-	AverageRating     float64             `json:"average_rating"`
-	RatingsCount      string              `json:"ratings_count"`
-	Favourite         bool                `json:"favourite"`
-	ProductGroups     []ProductGroup      `json:"product_groups" gorm:"foreignKey:ProductID"`
-	ProductTempsSizes []ProductTempSize   `json:"product_temp_sizes" gorm:"foreignKey:ProductID"`
-	ProductCategories []ProductCategories `json:"product_categories" gorm:"foreignKey:ProductID"`
+	Name              string            `json:"name"`
+	Description       string            `json:"description"`
+	Type              string            `json:"type"`
+	Currency          string            `json:"currency"`
+	Price             float64           `json:"price"`
+	Roasted           string            `json:"roasted"`
+	ImageLinkSquare   string            `json:"image_link_square"`
+	ImageLinkPortrait string            `json:"image_link_portrait"`
+	Ingredients       string            `json:"ingredients"`
+	SpecialIngredient string            `json:"special_ingredient"`
+	Discount          float64           `json:"discount"`
+	AverageRating     float64           `json:"average_rating"`
+	RatingsCount      string            `json:"ratings_count"`
+	Favourite         bool              `json:"favourite"`
+	ProductGroups     []ProductGroup    `json:"product_groups" gorm:"foreignKey:ProductID"`
+	ProductTempsSizes []ProductTempSize `json:"product_temp_sizes" gorm:"foreignKey:ProductID"`
+	ProductCategory   []ProductCategory `json:"product_category" gorm:"foreignKey:ProductID"`
 }
 
 // ProductGroup model
 type ProductGroup struct {
 	gorm.Model
-	ProductID int     `json:"product_id"`
-	GroupID   int     `json:"group_id"`
-	Type      bool    `json:"type"`
-	Product   Product `gorm:"foreignKey:ProductID"`
-	Group     Group   `gorm:"foreignKey:GroupID"`
+	ProductID int   `json:"product_id"`
+	GroupID   int   `json:"group_id"`
+	Type      bool  `json:"type"`
+	Group     Group `json:"group" gorm:"foreignKey:GroupID"`
 }
 
 // ProductTemperatureSize model
@@ -42,9 +44,8 @@ type ProductTempSize struct {
 	Price         float64     `json:"price"`
 	Currency      string      `json:"currency"`
 	Default       bool        `json:"default"`
-	Product       Product     `gorm:"foreignKey:ProductID"`
-	Temperature   Temperature `gorm:"foreignKey:TemperatureID"`
-	Size          Size        `gorm:"foreignKey:SizeID"`
+	Temperature   Temperature `json:"temperature" gorm:"foreignKey:TemperatureID"`
+	Size          Size        `json:"size" gorm:"foreignKey:SizeID"`
 }
 
 // Temperature model
@@ -90,18 +91,18 @@ type Modifier struct {
 	GroupModifiers []GroupModifier `json:"group_modifiers" gorm:"foreignKey:ModifierID"`
 }
 
-// ProductCategories model
-type ProductCategories struct {
+// ProductCategory model
+type ProductCategory struct {
 	gorm.Model
-	ProductID    int        `json:"product_id"`
-	CategoriesID int        `json:"categories_id"`
-	Product      Product    `gorm:"foreignKey:ProductID"`
-	Categories   Categories `gorm:"foreignKey:CategoriesID"`
+	ProductID  int      `json:"product_id"`
+	CategoryID int      `json:"category_id"`
+	Product    Product  `gorm:"foreignKey:ProductID"`
+	Category   Category `gorm:"foreignKey:CategoryID"`
 }
 
-// Categories model
-type Categories struct {
+// Category model
+type Category struct {
 	gorm.Model
-	Name              string              `json:"name"`
-	ProductCategories []ProductCategories `json:"product_categories" gorm:"foreignKey:CategoriesID"`
+	Name            string            `json:"name"`
+	ProductCategory []ProductCategory `json:"product_category" gorm:"foreignKey:CategoryID"`
 }

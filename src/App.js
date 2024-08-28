@@ -12,10 +12,12 @@ import AdminSetup from "./components/Auth/AdminSetup";
 import ForgotPass from "./components/Auth/ForgotPassword";
 import Login from "./components/Auth/Login";
 import Signup from "./components/Auth/Signup";
-import AddProduct from "./components/BackOffice/AddEditProduct";
 import Categories from "./components/BackOffice/CategoriesList";
+import Combo from "./components/BackOffice/ComboList";
 import GroupModifier from "./components/BackOffice/GroupModifierList";
+import Menu from "./components/BackOffice/MenuList";
 import Modifier from "./components/BackOffice/ModifiersList";
+import AddProduct from "./components/BackOffice/ProductForm";
 import ProductsList from "./components/BackOffice/ProductsList";
 import Size from "./components/BackOffice/SizesList";
 import Temperture from "./components/BackOffice/TemperaturesList";
@@ -68,6 +70,13 @@ function App() {
             <Route element={<PrivateRoute roles={["admin"]} />}>
               <Route path="/groupModifier" element={<GroupModifier/>} />
             </Route>
+            <Route element={<PrivateRoute roles={["admin"]} />}>
+              <Route path="/combo" element={<Combo/>} />
+            </Route>
+            <Route element={<PrivateRoute roles={["admin"]} />}>
+              <Route path="/menu" element={<Menu/>} />
+            </Route>
+
            
             <Route
               element={<PrivateRoute roles={["staff", "manager", "admin"]} />}

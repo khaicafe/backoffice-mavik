@@ -1,22 +1,22 @@
 import {
-  Button,
-  Container,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Typography
+    Button,
+    Container,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    TextField,
+    Typography
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; // Sử dụng useNavigate
 import { toast } from "react-toastify";
 import productService from "../../services/ProductService"; // Sử dụng dịch vụ sản phẩm
-  
-  const ProductManagement = () => {
+    
+const Menu = () => {
     const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]); // State cho danh sách sản phẩm đã lọc
     const [searchTerm, setSearchTerm] = useState(""); // State cho từ khóa tìm kiếm
@@ -25,9 +25,9 @@ import productService from "../../services/ProductService"; // Sử dụng dịc
     const [newProduct, setNewProduct] = useState({ name: "", description: "", price: 0 });
     const [error, setError] = useState("");
     const navigate = useNavigate(); // Thay thế useHistory bằng useNavigate
-  
+
     useEffect(() => {
-      const fetchProducts = async () => {
+    const fetchProducts = async () => {
         const response = await productService.getAllProducts();
         console.log("Products", response.data);
         setProducts(response.data);
@@ -35,74 +35,74 @@ import productService from "../../services/ProductService"; // Sử dụng dịc
             setFilteredProducts(response.data); // Ban đầu hiển thị tất cả sản phẩm
             }
         };
-      fetchProducts();
+    fetchProducts();
     }, []);
-  
+
     // Hàm để lọc sản phẩm dựa trên từ khóa tìm kiếm
     useEffect(() => {
         if (products) {
             const results = products.filter(product =>
                 Object.values(product).some(
-                  value =>
+                value =>
                     typeof value === "string" &&
                     value.toLowerCase().includes(searchTerm.toLowerCase())
                 )
-              );
-              setFilteredProducts(results);
+            );
+            setFilteredProducts(results);
         }
-     
+    
     }, [searchTerm, products]);
-  
+
     const handleAddProduct = async () => {
         navigate("/add-product"); // Điều hướng đến màn hình thêm sản phẩm
     };
 
     const handleEditProduct = async (id) => {
-      navigate(`/add-product/${id}`); // Điều hướng đến màn hình thêm sản phẩm
-  };
-  
+    navigate(`/add-product/${id}`); // Điều hướng đến màn hình thêm sản phẩm
+};
+
     const handleDeleteProduct = async (ID) => {
-      try {
+    try {
         await productService.deleteProduct(ID);
         setProducts(products.filter(product => product.ID !== ID));
         setFilteredProducts(filteredProducts.filter(product => product.ID !== ID)); // Cập nhật danh sách đã lọc
         toast.success("Product deleted successfully.");
-      } catch (error) {
+    } catch (error) {
         console.error("Error deleting product:", error);
         toast.error("Failed to delete product.");
-      }
+    }
     };
-  
+
     return (
-      <Container>
+    <Container>
         <Typography variant="h4" gutterBottom>
-          Product Management
+        Product Management
         </Typography>
-  
+
         {/* Tạo hàng ngang với nút "Add Product" và ô tìm kiếm */}
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-          <Button
+        <Button
             variant="contained"
             color="primary"
             onClick={() => handleAddProduct()}
-          >
+        >
             Add Product
-          </Button>
-  
-          {/* TextField cho tìm kiếm */}
-          <TextField
+        </Button>
+
+        {/* TextField cho tìm kiếm */}
+        <TextField
             label="Search"
             variant="outlined"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{ width: '300px' }} // Đặt độ rộng cho TextField tìm kiếm
-          />
+        />
         </div>
-  
+
         <TableContainer component={Paper}>
-          <Table>
+        <Table>
             <TableHead>
-              <TableRow>
+            <TableRow>
                 <TableCell>ID</TableCell>
                 <TableCell>Image</TableCell>
                 <TableCell>Name</TableCell>
@@ -110,43 +110,43 @@ import productService from "../../services/ProductService"; // Sử dụng dịc
                 <TableCell>price</TableCell>
                 <TableCell>Type</TableCell>
                 <TableCell>Actions</TableCell>
-              </TableRow>
+            </TableRow>
             </TableHead>
             <TableBody>
-              {filteredProducts.map((product, index) => (
+            {filteredProducts.map((product, index) => (
                 <TableRow key={index}>
-                  <TableCell>{index}</TableCell>
-                  <TableCell> <img src={product.image_link_square} alt={product.image_link_square} style={{ width: 100 }} /></TableCell>
-                  <TableCell>{product.name}</TableCell>
-                  <TableCell>{product.description}</TableCell>
-                  <TableCell>{product.currency} {product.price}</TableCell>
-                  <TableCell>{product.type}</TableCell>
-                  <TableCell>
+                <TableCell>{index}</TableCell>
+                <TableCell> <img src={product.image_link_square} alt={product.image_link_square} style={{ width: 100 }} /></TableCell>
+                <TableCell>{product.name}</TableCell>
+                <TableCell>{product.description}</TableCell>
+                <TableCell>{product.currency} {product.price}</TableCell>
+                <TableCell>{product.type}</TableCell>
+                <TableCell>
                     <Button
-                      variant="outlined"
-                      onClick={() => handleEditProduct(product.ID)}
-                      style={{ marginRight: "10px" }}
+                    variant="outlined"
+                    onClick={() => handleEditProduct(product.ID)}
+                    style={{ marginRight: "10px" }}
                     >
-                      Edit
+                    Edit
                     </Button>
                     <Button
-                      variant="outlined"
-                      color="secondary"
-                      onClick={() => handleDeleteProduct(product.ID)}
+                    variant="outlined"
+                    color="secondary"
+                    onClick={() => handleDeleteProduct(product.ID)}
                     >
-                      Delete
+                    Delete
                     </Button>
-                  </TableCell>
+                </TableCell>
                 </TableRow>
-              ))}
+            ))}
             </TableBody>
-          </Table>
+        </Table>
         </TableContainer>
-  
+
         
-      </Container>
+    </Container>
     );
-  };
-  
-  export default ProductManagement;
-  
+};
+
+export default Menu;
+    

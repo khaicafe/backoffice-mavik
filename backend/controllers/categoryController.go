@@ -9,9 +9,9 @@ import (
 	"gorm.io/gorm"
 )
 
-// Similar CRUD handlers for Categories
+// Similar CRUD handlers for Category
 func CreateCategory(c *gin.Context) {
-	var category models.Categories
+	var category models.Category
 	if err := c.ShouldBindJSON(&category); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -27,7 +27,7 @@ func CreateCategory(c *gin.Context) {
 
 func GetCategory(c *gin.Context) {
 	id := c.Param("id")
-	var category models.Categories
+	var category models.Category
 
 	if err := models.DB.First(&category, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -42,24 +42,24 @@ func GetCategory(c *gin.Context) {
 }
 
 func GetCategories(c *gin.Context) {
-	columnNames, err := GetColumnNames(models.DB, &models.Categories{})
+	columnNames, err := GetColumnNames(models.DB, &models.Category{})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	var categories []models.Categories
-	if err := models.DB.Find(&categories).Error; err != nil {
+	var category []models.Category
+	if err := models.DB.Find(&category).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	// c.JSON(http.StatusOK, categories)
-	c.JSON(http.StatusOK, gin.H{"dataTable": categories, "columns": columnNames})
+	// c.JSON(http.StatusOK, category)
+	c.JSON(http.StatusOK, gin.H{"dataTable": category, "columns": columnNames})
 }
 
 func UpdateCategory(c *gin.Context) {
 	id := c.Param("id")
-	var category models.Categories
+	var category models.Category
 
 	if err := models.DB.First(&category, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -85,7 +85,7 @@ func UpdateCategory(c *gin.Context) {
 
 func DeleteCategory(c *gin.Context) {
 	id := c.Param("id")
-	var category models.Categories
+	var category models.Category
 
 	if err := models.DB.First(&category, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {

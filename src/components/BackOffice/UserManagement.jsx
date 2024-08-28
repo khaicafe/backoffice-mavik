@@ -1,25 +1,25 @@
 import {
-  Button,
-  Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  MenuItem,
-  Paper,
-  Select,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Typography,
+    Button,
+    Container,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    MenuItem,
+    Paper,
+    Select,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    TextField,
+    Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import productService from "../../services/productService";
+import productService from "../../services/ProductService";
 import userService from "../../services/userService";
 
 const UserManagement = () => {

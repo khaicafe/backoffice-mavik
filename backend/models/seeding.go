@@ -80,29 +80,29 @@ func SeedModifiers(db *gorm.DB) {
 	log.Println("Modifiers seeded successfully.")
 }
 
-// SeedCategories - Seeds the database with default categories
-func SeedCategories(db *gorm.DB) {
+// SeedCategory - Seeds the database with default category
+func SeedCategory(db *gorm.DB) {
 	var count int64
-	db.Model(&Categories{}).Count(&count)
+	db.Model(&Category{}).Count(&count)
 	if count > 0 {
-		log.Println("Categories already seeded, skipping.")
+		log.Println("Category already seeded, skipping.")
 		return
 	}
 
-	categories := []Categories{
+	category := []Category{
 		{Name: "Coffee"},
 		{Name: "Cold Beverages"},
 		{Name: "Specialty Drinks"},
 		{Name: "Seasonal Favorites"},
 	}
 
-	for _, category := range categories {
-		if err := db.FirstOrCreate(&category, Categories{Name: category.Name}).Error; err != nil {
-			log.Fatalf("Cannot seed categories: %v", err)
+	for _, category := range category {
+		if err := db.FirstOrCreate(&category, Category{Name: category.Name}).Error; err != nil {
+			log.Fatalf("Cannot seed category: %v", err)
 		}
 	}
 
-	log.Println("Categories seeded successfully.")
+	log.Println("Category seeded successfully.")
 }
 
 // SeedSizes - Seeds the database with default sizes
@@ -156,7 +156,7 @@ func SeedTemperatures(db *gorm.DB) {
 func SeedDefaultData(db *gorm.DB) {
 	SeedUsers(db)
 	SeedModifiers(db)
-	SeedCategories(db)
+	SeedCategory(db)
 	SeedSizes(db)
 	SeedTemperatures(db)
 }

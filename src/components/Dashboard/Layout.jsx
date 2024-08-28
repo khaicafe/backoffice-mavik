@@ -188,9 +188,20 @@ const Layout = () => {
             <ListItemIcon>
               <PeopleIcon />
             </ListItemIcon>
-            <ListItemText primary="Up load" />
+            <ListItemText primary="Upload" />
           </ListItem>
-        
+          <ListItem button component={Link} to="/combo">
+            <ListItemIcon>
+              <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Combo" />
+          </ListItem>
+          <ListItem button component={Link} to="/menu">
+            <ListItemIcon>
+              <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Menu" />
+          </ListItem>
         </List>
       </Drawer>
       <Main open={open}>
