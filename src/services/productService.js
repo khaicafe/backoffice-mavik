@@ -2,7 +2,6 @@ import axios from "axios";
 import config from "../config";
 
 const API_URL = config.apiBaseUrl + "/products";
-const MODIFIER_URL = config.apiBaseUrl + "/modifiers";
 
 const getAllProducts = () => {
   return axios.get(`${API_URL}`);

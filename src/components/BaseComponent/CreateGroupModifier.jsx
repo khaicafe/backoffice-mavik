@@ -15,7 +15,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import GroupService from "../../services/GroupModifierService"; // Import the service for Group CRUD operations
 import Modifiers from "../../services/ModifierService";
-import uploadimage from "../../services/uploadimageService";
 
 const GrouptModifier = () => {
     const initialFormValues = {
@@ -74,11 +73,7 @@ const GrouptModifier = () => {
 
     
     useEffect(() => {
-        // fetchCategories();
         fetchModifiers();
-        // fetchTempertures();
-        // fetchSizes();
-        fetchGroupModifiers(); // Fetch existing group modifiers
     }, [id]);
 
     useEffect(() => {
@@ -110,17 +105,6 @@ const GrouptModifier = () => {
             setModifiers([]);
         }
     };
-
-    const fetchGroupModifiers = async () => {
-        try {
-            const response = await GroupService.getAllGroupModifiers(); // Use GroupService to fetch group modifiers
-            setGroupModifiers(response.data || []);
-            console.log('fetchGroupModifiers',response.data);
-        } catch (error) {
-            console.error("Failed to fetch group modifiers:", error);
-            setGroupModifiers([]);
-        }
-    };
     
     // Hàm xử lý chọn hoặc bỏ chọn modifier
     const handleModifierSelect = (modifierID) => {
@@ -145,14 +129,14 @@ const GrouptModifier = () => {
     };
     
         
-        const handleCreateGroupModifier = async(groupData) => {
-        try {
-            const response = await GroupService.createGroupModifier(groupData);
-            setGroupModifiers([...groupModifiers, response.data]);
-            setNewGroupName(""); // Clear the input after creation
-        } catch (error) {
-            console.error("Failed to create group modifier:", error);
-        }
+    const handleCreateGroupModifier = async(groupData) => {
+    try {
+        const response = await GroupService.createGroupModifier(groupData);
+        setGroupModifiers([...groupModifiers, response.data]);
+        setNewGroupName(""); // Clear the input after creation
+    } catch (error) {
+        console.error("Failed to create group modifier:", error);
+    }
     };
 
     const handleSubmitGroupModifier =  () => {
@@ -197,45 +181,11 @@ const GrouptModifier = () => {
         });
     };
     
-    const handleImageChange = (e) => {
-        setImage(e.target.files[0]);
-    };
 
-    const handleUpload = async () => {
-        const formData = new FormData();
-        formData.append('image', image);
-        try {
-            const response = await uploadimage.uploadimage(formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-            const imageUrl = `http://${response.data.url}`;
-            setImageURL(imageUrl);
-            setFormValues({
-                ...formValues,
-                imagelink_square: imageUrl
-            });
-        } catch (error) {
-            console.error('Error uploading the image:', error);
-        }
-    };
 
 return (
     <div>
-         {/* <Box
-        sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 500,
-            bgcolor: 'background.paper',
-            boxShadow: 24,
-            p: 4,
-            borderRadius: 2,
-        }}
-    > */}
+        
         <Typography id="add-modifier-title" variant="h6" component="h2" gutterBottom>
             Create Modifier Group
         </Typography>

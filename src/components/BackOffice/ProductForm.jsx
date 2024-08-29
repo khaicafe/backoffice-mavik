@@ -61,7 +61,6 @@ const AddProductForm = () => {
     const [showTable, setShowTable] = useState(false);
     const [open, setOpen] = useState(false);
     const [openModifierModal, setOpenModifierModal] = useState(false); // State to manage the Modifier modal
-    const [image, setImage] = useState(null);
     const [imageURL, setImageURL] = useState('');
     const [groupModifiers, setGroupModifiers] = useState([]);
     const [selectedGroupModifiers, setSelectedGroupModifiers] = useState([]);
@@ -555,6 +554,7 @@ const AddProductForm = () => {
                 console.error("Failed to fetch product:", error);
             }
         }
+        navigate("/products");
        
 
     };

@@ -13,6 +13,7 @@ import { styled } from '@mui/material/styles';
 import React, { useEffect, useState } from 'react';
 import { COLORS } from '../../theme/themeColor';
 
+
 const TableComponent = ({ title, column, datas, onAddRow, onEditRow, onDeleteRow }) => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -133,7 +134,7 @@ const TableComponent = ({ title, column, datas, onAddRow, onEditRow, onDeleteRow
       <Typography variant="h4" gutterBottom>{title}</Typography>
        {/* Tạo hàng ngang với nút "Add Product" và ô tìm kiếm */}
        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-          <Button variant="contained" color="primary" style={{ marginBottom: '10px' }} onClick={openAddDialog}>Add Row</Button>
+          <Button variant="contained" color="primary" onClick={openAddDialog}>Add Row</Button>
           {/* TextField cho tìm kiếm */}
           <TextField
             label="Search"

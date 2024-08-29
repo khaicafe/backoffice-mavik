@@ -4,25 +4,29 @@ import {
     Button,
     Checkbox,
     CircularProgress,
-    Container,
     Grid,
     Modal,
     Paper,
     Table,
     TableBody,
-    TableCell,
     TableContainer,
     TableHead,
     TableRow,
     TextField,
-    Typography,
+    Typography
 } from "@mui/material";
 
+import {
+    TableCell,
+    tableCellClasses
+} from "@mui/material";
+import { styled } from '@mui/material/styles';
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import CategoryService from "../../services/CategoryService";
 import ComboService from "../../services/ComboService";
 import ProductService from "../../services/ProductService";
+import { COLORS } from '../../theme/themeColor';
 import ImagePicker from '../BaseComponent/ImagePicker';
 
 const modalStyle = {
@@ -53,6 +57,29 @@ const ComboList = () => {
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [qty, setQty] = useState({});
     const [productPrices, setProductPrices] = useState({});
+
+    const StyledTableCell = styled(TableCell)(({ theme }) => ({
+        [`&.${tableCellClasses.head}`]: {
+          backgroundColor: COLORS.BLUE,
+          color: theme.palette.common.white,
+        },
+        [`&.${tableCellClasses.body}`]: {
+          fontSize: 14,
+          padding: '0px 5px',
+        },
+      }));
+    
+    const StyledTableRow = styled(TableRow)(({ theme }) => ({
+    '&:nth-of-type(odd)': {
+        backgroundColor: theme.palette.action.hover,
+    },
+    // hide last border
+    '&:last-child td, &:last-child th': {
+        border: 0,
+    },
+    // height: 20,
+    
+    }));
     
     useEffect(() => {
         const fetchCombos = async () => {
@@ -206,7 +233,7 @@ const ComboList = () => {
     }
 
     return (
-        <Container>
+        <div style={{ width: '100%' }}>
             <Typography variant="h4" gutterBottom>
                 Combo List
             </Typography>
@@ -231,23 +258,23 @@ const ComboList = () => {
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell>ID</TableCell>
-                            <TableCell>Image</TableCell>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Description</TableCell>
-                            <TableCell>Price</TableCell>
-                            <TableCell>Actions</TableCell>
+                            <StyledTableCell>ID</StyledTableCell>
+                            <StyledTableCell>Image</StyledTableCell>
+                            <StyledTableCell>Name</StyledTableCell>
+                            <StyledTableCell>Description</StyledTableCell>
+                            <StyledTableCell>Price</StyledTableCell>
+                            <StyledTableCell align="right">Actions</StyledTableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {filteredCombos.map((combo) => (
-                            <TableRow key={combo.ID}>
-                                <TableCell>{combo.ID}</TableCell>
-                                <TableCell> <img src={combo.image_link_square} alt={combo.image_link_square} style={{ width: 100 }} /></TableCell>
-                                <TableCell>{combo.name}</TableCell>
-                                <TableCell>{combo.description}</TableCell>
-                                <TableCell>{combo.price}</TableCell>
-                                <TableCell>
+                            <StyledTableRow key={combo.ID}>
+                                <StyledTableCell>{combo.ID}</StyledTableCell>
+                                <StyledTableCell> <img src={combo.image_link_square} alt={combo.image_link_square} style={{ width: 100 }} /></StyledTableCell>
+                                <StyledTableCell>{combo.name}</StyledTableCell>
+                                <StyledTableCell>{combo.description}</StyledTableCell>
+                                <StyledTableCell>{combo.price}</StyledTableCell>
+                                <StyledTableCell align="right">
                                     <Button
                                         variant="outlined"
                                         color="primary"
@@ -263,8 +290,8 @@ const ComboList = () => {
                                     >
                                         Delete
                                     </Button>
-                                </TableCell>
-                            </TableRow>
+                                </StyledTableCell>
+                            </StyledTableRow>
                         ))}
                     </TableBody>
                 </Table>
@@ -327,20 +354,7 @@ const ComboList = () => {
                                             checked={selectedProducts.some((product) => product.ID === option.ID)}
                                         />
                                         {option.name}
-                                        <TextField
-                                            label="Qty"
-                                            type="number"
-                                            value={qty[option.ID] || 1}
-                                            onChange={(e) => setQty({ ...qty, [option.ID]: parseInt(e.target.value, 10) })}
-                                            sx={{ width: 60, ml: 2 }}
-                                        />
-                                        <TextField
-                                            label="Price"
-                                            type="number"
-                                            value={productPrices[option.ID] || 0}
-                                            onChange={(e) => setProductPrices({ ...productPrices, [option.ID]: parseFloat(e.target.value) })}
-                                            sx={{ width: 80, ml: 2 }}
-                                        />
+                                        
                                     </li>
                                 );
                             }}
@@ -349,6 +363,45 @@ const ComboList = () => {
                                 <TextField {...params} label="Select Products" placeholder="Select products" />
                             )}
                         />
+                        
+                    )}
+                     {selectedProducts.length > 0 && (
+                        <TableContainer component={Paper} sx={{ mt: 2, maxHeight: 300 }}>
+                            <Table stickyHeader>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>ID</TableCell>
+                                        <TableCell>Name</TableCell>
+                                        <TableCell>Qty</TableCell>
+                                        <TableCell>Price</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {selectedProducts.map((product) => (
+                                        <TableRow key={product.ID}>
+                                            <TableCell>{product.ID}</TableCell>
+                                            <TableCell>{product.name}</TableCell>
+                                            <TableCell>
+                                                <TextField
+                                                    type="number"
+                                                    value={qty[product.ID] || 1}
+                                                    onChange={(e) => setQty({ ...qty, [product.ID]: parseInt(e.target.value, 10) })}
+                                                    sx={{ width: 60 }}
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <TextField
+                                                    type="number"
+                                                    value={productPrices[product.ID] || 0}
+                                                    onChange={(e) => setProductPrices({ ...productPrices, [product.ID]: parseFloat(e.target.value) })}
+                                                    sx={{ width: 80 }}
+                                                />
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
                     )}
 
                     <Autocomplete
@@ -374,7 +427,7 @@ const ComboList = () => {
                     </Button>
                 </Box>
             </Modal>
-        </Container>
+        </div>
     );
 };
 

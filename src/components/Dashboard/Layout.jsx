@@ -171,6 +171,12 @@ const Layout = () => {
             </ListItemIcon>
             <ListItemText primary="Modifier" />
           </ListItem>
+          <ListItem button component={Link} to="/groupModifier">
+            <ListItemIcon>
+              <LayersIcon />
+            </ListItemIcon>
+            <ListItemText primary="Group Modifier" />
+          </ListItem>
           <ListItem button component={Link} to="/Temperatures">
             <ListItemIcon>
               <ThermostatIcon />
@@ -183,12 +189,7 @@ const Layout = () => {
             </ListItemIcon>
             <ListItemText primary="Category" />
           </ListItem>
-          <ListItem button component={Link} to="/groupModifier">
-            <ListItemIcon>
-              <LayersIcon />
-            </ListItemIcon>
-            <ListItemText primary="Group Modifier" />
-          </ListItem>
+         
           <ListItem button component={Link} to="/uploads">
             <ListItemIcon>
               <CloudUploadIcon />

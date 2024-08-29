@@ -91,7 +91,7 @@ function ImagePicker({ onImageSelect, defaultImage}) {
           <Typography id="modal-title" variant="h6" component="h2">
             Select an Image
           </Typography>
-          <TableContainer component={Paper}>
+          <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
             <Table sx={{ minWidth: 250 }} aria-label="simple table">
               <TableHead>
                 <TableRow>

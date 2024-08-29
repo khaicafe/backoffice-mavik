@@ -1,4 +1,5 @@
 import {
+  Button,
   CircularProgress,
   Paper,
   Table,
@@ -7,18 +8,40 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  tableCellClasses
 } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import React, { useEffect, useState } from 'react';
+import { COLORS } from '../../theme/themeColor';
   
   function UploadComponent() {
     const [files, setFiles] = useState([]);
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    const StyledTableCell = styled(TableCell)(({ theme }) => ({
+      [`&.${tableCellClasses.head}`]: {
+        backgroundColor: COLORS.BLUE,
+        color: theme.palette.common.white,
+      },
+      [`&.${tableCellClasses.body}`]: {
+        fontSize: 14,
+        padding: '0px 5px',
+      },
+    }));
   
-    const handleFileChange = (event) => {
-      setFiles(event.target.files);
-    };
-  
+    const StyledTableRow = styled(TableRow)(({ theme }) => ({
+      '&:nth-of-type(odd)': {
+        backgroundColor: theme.palette.action.hover,
+      },
+      // hide last border
+      '&:last-child td, &:last-child th': {
+        border: 0,
+      },
+      // height: 20,
+      
+    }));
+
     const fetchImages = () => {
       setLoading(true);
       fetch('http://localhost:8080/images')
@@ -33,26 +56,36 @@ import React, { useEffect, useState } from 'react';
         });
     };
   
-    const handleUpload = async () => {
-      const formData = new FormData();
-      for (let i = 0; i < files.length; i++) {
-        formData.append('files', files[i]);
-      }
-  
-      try {
-        const response = await fetch('http://localhost:8080/api/uploads', {
-          method: 'POST',
-          body: formData,
-        });
-        const result = await response.json();
-        console.log('Upload result:', result);
-  
-        // Re-fetch the images after a successful upload
-        fetchImages();
-      } catch (error) {
-        console.error('Error uploading files:', error);
+    const handleFileChange = async (event) => {
+      // setFiles(event.target.files);
+      const selectedFiles = event.target.files;
+      setFiles(selectedFiles);
+
+      if (selectedFiles.length > 0) {
+          await handleUpload(selectedFiles);
       }
     };
+
+    const handleUpload = async (selectedFiles) => {
+      const formData = new FormData();
+      for (let i = 0; i < selectedFiles.length; i++) {
+          formData.append('files', selectedFiles[i]);
+      }
+
+      try {
+          const response = await fetch('http://localhost:8080/api/uploads', {
+              method: 'POST',
+              body: formData,
+          });
+          const result = await response.json();
+          console.log('Upload result:', result);
+
+           // Gọi lại fetchImages để refresh danh sách hình ảnh
+           fetchImages();
+      } catch (error) {
+          console.error('Error uploading files:', error);
+      }
+  };
   
     useEffect(() => {
       fetchImages();
@@ -62,40 +95,65 @@ import React, { useEffect, useState } from 'react';
       return <CircularProgress />;
     }
   
-    const handleImageSelect = (url) => {
-      console.log('Selected URL:', url);
-    };
+   
   
     return (
       <div>
-        <input type="file" multiple onChange={handleFileChange} />
-        <button onClick={handleUpload}>Upload</button>
-        <TableContainer component={Paper} sx={{ marginTop: 5 }}>
+        {/* <input type="file" multiple onChange={handleFileChange} />
+        <button onClick={handleUpload}>Upload</button> */}
+
+        <input
+            type="file"
+            multiple
+            onChange={handleFileChange}
+            style={{ display: 'none' }} // Ẩn input file
+            id="file-upload"
+        />
+        <label htmlFor="file-upload">
+            <Button
+                variant="contained"
+                component="span"
+                // onClick={handleUpload}
+                sx={{
+                    backgroundColor: '#1e88e5', // Màu xanh giống trong hình
+                    color: '#fff', // Màu chữ trắng
+                    padding: '10px 20px',
+                    textTransform: 'none', // Giữ nguyên chữ thường
+                    borderRadius: '4px', // Độ bo góc
+                    '&:hover': {
+                        backgroundColor: '#1565c0', // Màu xanh đậm hơn khi hover
+                    },
+                }}
+            >
+                Upload Images
+            </Button>
+        </label>
+        <TableContainer component={Paper} sx={{ marginTop: 2 }}>
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>File Name</TableCell>
-                <TableCell align="left">Image</TableCell>
-                <TableCell align="left">URL</TableCell>
+                <StyledTableCell>ID</StyledTableCell>
+                <StyledTableCell>File Name</StyledTableCell>
+                <StyledTableCell align="left">Image</StyledTableCell>
+                <StyledTableCell align="left">URL</StyledTableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {images.map((image) => (
-                <TableRow key={image.ID}>
-                  <TableCell component="th" scope="row">
+                <StyledTableRow key={image.ID}>
+                  <StyledTableCell component="th" scope="row">
                     {image.ID}
-                  </TableCell>
-                  <TableCell>{image.FileName}</TableCell>
-                  <TableCell align="left">
+                  </StyledTableCell>
+                  <StyledTableCell>{image.FileName}</StyledTableCell>
+                  <StyledTableCell align="left">
                     <img src={image.URL} alt={image.FileName} style={{ width: 100 }} />
-                  </TableCell>
-                  <TableCell align="left">
+                  </StyledTableCell>
+                  <StyledTableCell align="left">
                     <a href={image.URL} target="_blank" rel="noopener noreferrer">
                       {image.URL}
                     </a>
-                  </TableCell>
-                </TableRow>
+                  </StyledTableCell>
+                </StyledTableRow>
               ))}
             </TableBody>
           </Table>

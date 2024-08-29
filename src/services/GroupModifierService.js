@@ -22,13 +22,13 @@ const GroupModifierService = {
 
     // Update a modifier by ID
     updateGroupModifier(id, modifierData) {
-        console.log("Modifier",modifierData);
-        return axios.put(`${API_URL + "/modifierGroups"}/${id}`, modifierData);
+        // console.log("Modifier",modifierData);
+        return axios.put(`${API_URL + "/group-modifiers"}/${id}`, modifierData);
     },
 
     // Delete a modifier by ID
     deleteGroupModifier(id) {
-        return axios.delete(`${API_URL + "/modifierGroups"}/${id}`);
+        return axios.delete(`${API_URL + "/group-modifiers"}/${id}`);
     },
 
 

@@ -1,10 +1,7 @@
 import {
-    Autocomplete,
     Box,
     Button,
     Checkbox,
-    CircularProgress,
-    Container,
     Grid,
     Modal,
     Paper,
@@ -15,9 +12,8 @@ import {
     TableHead,
     TableRow,
     TextField,
-    Typography,
+    Typography
 } from "@mui/material";
-
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import ComboService from "../../services/ComboService";
@@ -30,7 +26,7 @@ const modalStyle = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 800,
+    width: 1000,
     bgcolor: 'background.paper',
     border: '2px solid #000',
     boxShadow: 24,
@@ -43,7 +39,9 @@ const MenuList = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [imageURL, setImageURL] = useState('');
     const [selectedMenu, setSelectedMenu] = useState(null);
-    const [openModal, setOpenModal] = useState(false);
+    const [openMenuModal, setOpenMenuModal] = useState(false);
+    const [openProductModal, setOpenProductModal] = useState(false);
+    const [openComboModal, setOpenComboModal] = useState(false);
     const [menuDetails, setMenuDetails] = useState({ name: "", products: [], combos: [] });
     const [loading, setLoading] = useState(true);
     const [products, setProducts] = useState([]);
@@ -52,10 +50,13 @@ const MenuList = () => {
     const [selectedCombos, setSelectedCombos] = useState([]);
     const [qty, setQty] = useState({});
     const [productPrices, setProductPrices] = useState({});
-    
+    const [allProductsSelected, setAllProductsSelected] = useState(false);
+    const [allCombosSelected, setAllCombosSelected] = useState(false);
+
     useEffect(() => {
         const fetchMenus = async () => {
             const response = await MenuService.getAllMenus();
+            console.log(response.data);
             setMenus(response.data);
             setFilteredMenus(response.data);
         };
@@ -70,7 +71,6 @@ const MenuList = () => {
                     ProductService.getAllProducts(),
                     ComboService.getAllCombos(),
                 ]);
-                console.log(productsResponse, combosResponse);
                 setProducts(productsResponse.data || []);
                 setCombos(combosResponse.data || []);
                 setLoading(false);
@@ -94,84 +94,45 @@ const MenuList = () => {
         }
     }, [searchTerm, menus]);
 
-    // image
-    const handleImageSelect = (url) => {
-        setImageURL(url);
-    };
-
-    const handleOpenModal = (menu = null) => {
-        console.log('handleOpenModal', menu);
+    const handleOpenMenuModal = (menu = null) => {
         if (menu) {
-            // Fill modal with menu details for editing
+            setImageURL(menu.image);
             setMenuDetails({
                 name: menu.name,
-                products: menu.products.map(pc => ({
-                    product_id: pc.product_id,
-                    qty: pc.qty,
-                    price: pc.price
-                })),
-                combos: menu.combos.map(cm => ({
-                    combo_id: cm.combo_id,
-                    qty: cm.qty,
-                    price: cm.price
-                }))
+                image: menu.image,
+                products: menu.products,
+                combos: menu.combos,
             });
             setSelectedMenu(menu);
-            setSelectedProducts(menu.products.map(pc => ({
-                ID: pc.ID,
-                name: pc.name
-            })));
-            setSelectedCombos(menu.combos.map(cm => ({
-                ID: cm.ID,
-                name: cm.name
-            })));
-            setQty(menu.products.reduce((acc, curr) => ({ ...acc, [curr.product_id]: curr.qty }), {}));
-            setProductPrices(menu.products.reduce((acc, curr) => ({ ...acc, [curr.product_id]: curr.price }), {}));
+            setSelectedProducts(menu.products);
+            setSelectedCombos(menu.combos);
         } else {
-            // Reset modal for creating new menu
             setMenuDetails({ name: "", products: [], combos: [] });
             setSelectedProducts([]);
             setSelectedCombos([]);
-            setQty({});
-            setProductPrices({});
             setSelectedMenu(null);
         }
-        setOpenModal(true);
+        setOpenMenuModal(true);
     };
 
-    const handleCloseModal = () => {
-        setOpenModal(false);
+    const handleCloseMenuModal = () => {
+        setOpenMenuModal(false);
     };
 
     const handleSaveMenu = async () => {
-        const tem = {
-            "name": "Menu 1",
-            "products": [
-              {"ID": 1},
-              {"ID": 2}
-            ],
-            "combos": [
-              {"ID": 3},
-              {"ID": 4}
-            ]
-          }
         try {
             const menuData = {
                 name: menuDetails.name,
-                image_link_square: imageURL,
-                image_link_portrait: imageURL,
+                image: imageURL,
                 products: selectedProducts.map((product) => ({
                     ID: product.ID,
-                    // qty: qty[product.ID] || 1,
-                    // price: productPrices[product.ID] || 0,
                 })),
                 combos: selectedCombos.map((combo) => ({
                     ID: combo.ID,
-                    // qty: qty[combo.ID] || 1,
-                    // price: productPrices[combo.ID] || 0,
                 })),
             };
-            console.log(menuData, selectedMenu.ID);
+
+            console.log(menuData);
 
             if (selectedMenu) {
                 await MenuService.updateMenu(selectedMenu.ID, menuData);
@@ -181,7 +142,7 @@ const MenuList = () => {
                 toast.success("Menu created successfully.");
             }
 
-            setOpenModal(false);
+            setOpenMenuModal(false);
             const response = await MenuService.getAllMenus();
             setMenus(response.data);
             setFilteredMenus(response.data);
@@ -203,17 +164,34 @@ const MenuList = () => {
         }
     };
 
+    const handleToggleAllProducts = () => {
+        if (allProductsSelected) {
+            setSelectedProducts([]);
+        } else {
+            setSelectedProducts(products);
+        }
+        setAllProductsSelected(!allProductsSelected);
+    };
+
+    const handleToggleAllCombos = () => {
+        if (allCombosSelected) {
+            setSelectedCombos([]);
+        } else {
+            setSelectedCombos(combos);
+        }
+        setAllCombosSelected(!allCombosSelected);
+    };
+
     return (
-        <Container>
+        <div style={{ width: '100%' }}>
             <Typography variant="h4" gutterBottom>
                 Menu List
             </Typography>
-
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
             <Button
                 variant="contained"
                 color="primary"
-                onClick={() => handleOpenModal()}
-                sx={{ marginBottom: 2 }}
+                onClick={() => handleOpenMenuModal()}
             >
                 Add Menu
             </Button>
@@ -223,28 +201,32 @@ const MenuList = () => {
                 variant="outlined"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ marginBottom: 20, width: '100%' }}
+                style={{ width: '300px' }} // Đặt độ rộng cho TextField tìm kiếm
             />
+            </div>
+           
 
             <TableContainer component={Paper}>
                 <Table>
                     <TableHead>
                         <TableRow>
                             <TableCell>ID</TableCell>
+                            <TableCell>Image</TableCell>
                             <TableCell>Name</TableCell>
-                            <TableCell>Actions</TableCell>
+                            <TableCell align="right">Actions</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {filteredMenus.map((menu) => (
                             <TableRow key={menu.ID}>
                                 <TableCell>{menu.ID}</TableCell>
+                                <TableCell><img src={menu.image} alt={menu.image} style={{ width: 70 }} /></TableCell>
                                 <TableCell>{menu.name}</TableCell>
-                                <TableCell>
+                                <TableCell align="right">
                                     <Button
                                         variant="outlined"
                                         color="primary"
-                                        onClick={() => handleOpenModal(menu)}
+                                        onClick={() => handleOpenMenuModal(menu)}
                                         sx={{ marginRight: 1 }}
                                     >
                                         Edit
@@ -264,8 +246,8 @@ const MenuList = () => {
             </TableContainer>
 
             <Modal
-                open={openModal}
-                onClose={handleCloseModal}
+                open={openMenuModal}
+                onClose={handleCloseMenuModal}
                 aria-labelledby="modal-title"
                 aria-describedby="modal-description"
             >
@@ -279,7 +261,7 @@ const MenuList = () => {
                         <Typography variant="h6" component="h3" gutterBottom>
                             Menu image
                         </Typography>
-                        <ImagePicker onImageSelect={handleImageSelect} defaultImage={imageURL} />
+                        <ImagePicker onImageSelect={setImageURL} defaultImage={imageURL} />
                     </Grid>
 
                     <TextField
@@ -291,89 +273,45 @@ const MenuList = () => {
                         onChange={(e) => setMenuDetails({ ...menuDetails, name: e.target.value })}
                     />
 
-                    {loading ? (
-                        <CircularProgress />
-                    ) : (
-                        <>
-                            <Autocomplete
-                                multiple
-                                options={products}
-                                value={selectedProducts}
-                                getOptionLabel={(option) => option.name}
-                                isOptionEqualToValue={(option, value) => option.ID === value.ID}
-                                onChange={(event, newValue) => setSelectedProducts(newValue)}
-                                renderOption={(props, option) => {
-                                    const { key, ...otherProps } = props; // Tách key ra khỏi props
+                    <Button variant="contained" color="primary" onClick={() => setOpenProductModal(true)}>
+                        Select Products
+                    </Button>
+                    <Button variant="contained" color="primary" onClick={() => setOpenComboModal(true)} sx={{ ml: 2 }}>
+                        Select Combos
+                    </Button>
 
-                                    return (
-                                        <li {...otherProps} key={key}>
-                                            <Checkbox
-                                                checked={selectedProducts.some((product) => product.ID === option.ID)}
-                                            />
-                                            {option.name}
-                                            <TextField
-                                                label="Qty"
-                                                type="number"
-                                                value={qty[option.ID] || 1}
-                                                onChange={(e) => setQty({ ...qty, [option.ID]: parseInt(e.target.value, 10) })}
-                                                sx={{ width: 60, ml: 2 }}
-                                            />
-                                            <TextField
-                                                label="Price"
-                                                type="number"
-                                                value={productPrices[option.ID] || 0}
-                                                onChange={(e) => setProductPrices({ ...productPrices, [option.ID]: parseFloat(e.target.value) })}
-                                                sx={{ width: 80, ml: 2 }}
-                                            />
-                                        </li>
-                                    );
-                                }}
-                                renderInput={(params) => (
-                                    <TextField {...params} label="Select Products" placeholder="Select products" />
-                                )}
-                                sx={{ marginTop: 2 }}
-                            />
-
-                            <Autocomplete
-                                multiple
-                                options={combos}
-                                value={selectedCombos}
-                                getOptionLabel={(option) => option.name}
-                                isOptionEqualToValue={(option, value) => option.ID === value.ID}
-                                onChange={(event, newValue) => setSelectedCombos(newValue)}
-                                renderOption={(props, option) => {
-                                    const { key, ...otherProps } = props; // Tách key ra khỏi props
-
-                                    return (
-                                        <li {...otherProps} key={key}>
-                                            <Checkbox
-                                                checked={selectedCombos.some((combo) => combo.ID === option.ID)}
-                                            />
-                                            {option.name}
-                                            <TextField
-                                                label="Qty"
-                                                type="number"
-                                                value={qty[option.ID] || 1}
-                                                onChange={(e) => setQty({ ...qty, [option.ID]: parseInt(e.target.value, 10) })}
-                                                sx={{ width: 60, ml: 2 }}
-                                            />
-                                            <TextField
-                                                label="Price"
-                                                type="number"
-                                                value={productPrices[option.ID] || 0}
-                                                onChange={(e) => setProductPrices({ ...productPrices, [option.ID]: parseFloat(e.target.value) })}
-                                                sx={{ width: 80, ml: 2 }}
-                                            />
-                                        </li>
-                                    );
-                                }}
-                                renderInput={(params) => (
-                                    <TextField {...params} label="Select Combos" placeholder="Select combos" />
-                                )}
-                                sx={{ marginTop: 2 }}
-                            />
-                        </>
-                    )}
+                    <TableContainer component={Paper} sx={{ marginTop: 2, maxHeight: 1000 }}>
+                        <Table stickyHeader>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>ID</TableCell>
+                                    <TableCell>Image</TableCell>
+                                    <TableCell>Name</TableCell>
+                                    <TableCell>Price</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {selectedProducts.map((product) => (
+                                    <TableRow key={product.ID}>
+                                        <TableCell>{product.ID}</TableCell>
+                                        <TableCell><img src={product.image_link_square} alt={product.image_link_square} style={{ width: 70 }} /></TableCell>
+                                        <TableCell>{product.name}</TableCell>
+                                        <TableCell>{product.price}</TableCell>
+                                       
+                                    </TableRow>
+                                ))}
+                                {selectedCombos.map((combo) => (
+                                    <TableRow key={combo.ID}>
+                                        <TableCell>{combo.ID}</TableCell>
+                                        <TableCell><img src={combo.image_link_square} alt={combo.image_link_square} style={{ width: 70 }} /></TableCell>
+                                        <TableCell>{combo.name}</TableCell>
+                                        <TableCell>{combo.price}</TableCell>
+                                        
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
 
                     <Button
                         variant="contained"
@@ -385,7 +323,127 @@ const MenuList = () => {
                     </Button>
                 </Box>
             </Modal>
-        </Container>
+
+            {/* Modal for Selecting Products */}
+            <Modal
+                open={openProductModal}
+                onClose={() => setOpenProductModal(false)}
+                aria-labelledby="product-modal-title"
+                aria-describedby="product-modal-description"
+            >
+                <Box sx={modalStyle}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+                        <Typography id="product-modal-title" variant="h6" component="h2">
+                            Select Products
+                        </Typography>
+                        <Button variant="contained" color="primary" onClick={handleToggleAllProducts}>
+                            {allProductsSelected ? "Uncheck All" : "Check All"}
+                        </Button>
+                    </div>
+                    <TableContainer component={Paper} sx={{ marginTop: 2, maxHeight: 400 }}>
+                        <Table stickyHeader>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>ID</TableCell>
+                                    <TableCell>Image</TableCell>
+                                    <TableCell>Name</TableCell>
+                                    <TableCell>Select</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {products.map((product) => (
+                                    <TableRow key={product.ID}>
+                                        <TableCell>{product.ID}</TableCell>
+                                        <TableCell><img src={product.image_link_square} alt={product.image_link_square} style={{ width: 60 }} /></TableCell>
+                                        <TableCell>{product.name}</TableCell>
+                                        <TableCell>
+                                            <Checkbox
+                                                checked={selectedProducts.some((p) => p.ID === product.ID)}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setSelectedProducts([...selectedProducts, product]);
+                                                    } else {
+                                                        setSelectedProducts(selectedProducts.filter((p) => p.ID !== product.ID));
+                                                    }
+                                                }}
+                                            />
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => setOpenProductModal(false)}
+                        sx={{ marginTop: 2 }}
+                    >
+                        Done
+                    </Button>
+                </Box>
+            </Modal>
+
+            {/* Modal for Selecting Combos */}
+            <Modal
+                open={openComboModal}
+                onClose={() => setOpenComboModal(false)}
+                aria-labelledby="combo-modal-title"
+                aria-describedby="combo-modal-description"
+            >
+                <Box sx={modalStyle}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+                        <Typography id="combo-modal-title" variant="h6" component="h2">
+                            Select Combos
+                        </Typography>
+                        <Button variant="contained" color="primary" onClick={handleToggleAllCombos}>
+                            {allCombosSelected ? "Uncheck All" : "Check All"}
+                        </Button>
+                    </div>
+                    <TableContainer component={Paper} sx={{ marginTop: 2, maxHeight: 400 }}>
+                        <Table stickyHeader>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>ID</TableCell>
+                                    <TableCell>Image</TableCell>
+                                    <TableCell>Name</TableCell>
+                                    <TableCell>Select</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {combos.map((combo) => (
+                                    <TableRow key={combo.ID}>
+                                        <TableCell>{combo.ID}</TableCell>
+                                        <TableCell><img src={combo.image_link_square} alt={combo.image_link_square} style={{ width: 60 }} /></TableCell>
+                                        <TableCell>{combo.name}</TableCell>
+                                        <TableCell>
+                                            <Checkbox
+                                                checked={selectedCombos.some((c) => c.ID === combo.ID)}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setSelectedCombos([...selectedCombos, combo]);
+                                                    } else {
+                                                        setSelectedCombos(selectedCombos.filter((c) => c.ID !== combo.ID));
+                                                    }
+                                                }}
+                                            />
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => setOpenComboModal(false)}
+                        sx={{ marginTop: 2 }}
+                    >
+                        Done
+                    </Button>
+                </Box>
+            </Modal>
+        </div>
     );
 };
 

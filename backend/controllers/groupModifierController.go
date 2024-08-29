@@ -1,79 +1,13 @@
 package controllers
 
 import (
+	"fmt"
 	"mavik-backend/models"
 	"mavik-backend/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
-
-// CreateGroup - Tạo mới Group
-func CreateGroup(c *gin.Context) {
-	var group models.Group
-	if err := c.ShouldBindJSON(&group); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	if err := models.DB.Create(&group).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, group)
-}
-
-// GetGroups - Lấy danh sách tất cả các Group
-func GetGroups(c *gin.Context) {
-	var groups []models.Group
-	if err := models.DB.Find(&groups).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, groups)
-}
-
-// GetGroupByID - Lấy thông tin chi tiết của Group theo ID
-func GetGroupByID(c *gin.Context) {
-	id := c.Param("id")
-	var group models.Group
-	if err := models.DB.Where("id = ?", id).First(&group).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Group not found"})
-		return
-	}
-	c.JSON(http.StatusOK, group)
-}
-
-// UpdateGroup - Cập nhật thông tin Group theo ID
-func UpdateGroup(c *gin.Context) {
-	id := c.Param("id")
-	var group models.Group
-	if err := models.DB.Where("id = ?", id).First(&group).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Group not found"})
-		return
-	}
-
-	if err := c.ShouldBindJSON(&group); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := models.DB.Save(&group).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, group)
-}
-
-// DeleteGroup - Xóa Group theo ID
-func DeleteGroup(c *gin.Context) {
-	id := c.Param("id")
-	if err := models.DB.Delete(&models.Group{}, id).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "Group deleted"})
-}
 
 ///// tạo mới group và id liên kết
 type ModifierInput struct {
@@ -87,13 +21,6 @@ type GroupModifierInput struct {
 	MaxQty    int             `json:"max_qty"`
 	Modifiers []ModifierInput `json:"modifier_ids"`
 }
-
-// type GroupModifierInput struct {
-// 	Name        string `json:"name"`
-// 	MinQty      int    `json:"min_qty"`
-// 	MaxQty      int    `json:"max_qty"`
-// 	ModifierIDs []uint `json:"modifier_ids"`
-// }
 
 // CreateGroupModifier - Tạo mới Group và các GroupModifier liên quan
 func CreateGroupModifier(c *gin.Context) {
@@ -147,6 +74,9 @@ func GetAllGroupModifiers(c *gin.Context) {
 
 	// Duyệt qua tất cả GroupModifiers và nhóm lại theo Group
 	for _, gm := range groupModifiers {
+		// Print GroupID to console
+		fmt.Println("GroupID:", gm.GroupID)
+
 		if _, exists := grouped[gm.GroupID]; !exists {
 			grouped[gm.GroupID] = map[string]interface{}{
 				"ID":       gm.Group.ID,
@@ -157,13 +87,30 @@ func GetAllGroupModifiers(c *gin.Context) {
 			}
 		}
 
-		grouped[gm.GroupID]["Modifier"] = append(grouped[gm.GroupID]["Modifier"].([]map[string]interface{}), map[string]interface{}{
-			"ID":       gm.Modifier.ID,
-			"Name":     gm.Modifier.Name,
-			"Price":    gm.Modifier.Price,
-			"Currency": gm.Modifier.Currency,
-			"Default":  gm.Default, // Thêm trường Default từ GroupModifier
-		})
+		// Kiểm tra xem trường "Modifier" có tồn tại và không phải là nil
+		if _, ok := grouped[gm.GroupID]["Modifier"].([]map[string]interface{}); ok {
+			grouped[gm.GroupID]["Modifier"] = append(
+				grouped[gm.GroupID]["Modifier"].([]map[string]interface{}),
+				map[string]interface{}{
+					"ID":       gm.Modifier.ID,
+					"Name":     gm.Modifier.Name,
+					"Price":    gm.Modifier.Price,
+					"Currency": gm.Modifier.Currency,
+					"Default":  gm.Default, // Thêm trường Default từ GroupModifier
+				},
+			)
+		} else {
+			// Nếu Modifier là nil hoặc không tồn tại, khởi tạo slice mới
+			grouped[gm.GroupID]["Modifier"] = []map[string]interface{}{
+				{
+					"ID":       gm.Modifier.ID,
+					"Name":     gm.Modifier.Name,
+					"Price":    gm.Modifier.Price,
+					"Currency": gm.Modifier.Currency,
+					"Default":  gm.Default, // Thêm trường Default từ GroupModifier
+				},
+			}
+		}
 	}
 
 	// Sử dụng hàm tiện ích để in ra JSON
@@ -177,4 +124,84 @@ func GetAllGroupModifiers(c *gin.Context) {
 
 	// c.JSON(http.StatusOK, gin.H{"data": response})
 	c.JSON(http.StatusOK, response)
+}
+
+func UpdateGroupModifiers(c *gin.Context) {
+	id := c.Param("id")
+	var group models.Group
+
+	// Tìm Group cần cập nhật
+	if err := models.DB.Where("id = ?", id).First(&group).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Group not found"})
+		return
+	}
+
+	// Nhận dữ liệu từ request body
+	var input GroupModifierInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Cập nhật thông tin của Group
+	group.Name = input.Name
+	group.MinQty = input.MinQty
+	group.MaxQty = input.MaxQty
+
+	if err := models.DB.Save(&group).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Xóa tất cả các GroupModifier hiện tại liên kết với Group
+	if err := models.DB.Where("group_id = ?", group.ID).Delete(&models.GroupModifier{}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete existing GroupModifiers"})
+		return
+	}
+
+	// Tạo lại các GroupModifier theo dữ liệu mới
+	for _, modifier := range input.Modifiers {
+		groupModifier := models.GroupModifier{
+			GroupID:    int(group.ID),    // Chuyển đổi từ uint sang int nếu cần
+			ModifierID: int(modifier.ID), // Sử dụng ID của Modifier từ dữ liệu đầu vào
+			Default:    modifier.Default,
+		}
+		if err := models.DB.Create(&groupModifier).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create GroupModifier"})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, group)
+}
+
+func DeleteGroupModifier(c *gin.Context) {
+	id := c.Param("id")
+	var group models.Group
+
+	// Tìm Group cần xóa
+	if err := models.DB.Where("id = ?", id).First(&group).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Group not found"})
+		return
+	}
+
+	// Xóa tất cả các GroupModifier liên kết với Group
+	if err := models.DB.Where("group_id = ?", group.ID).Delete(&models.GroupModifier{}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete related GroupModifiers"})
+		return
+	}
+
+	// Xóa tất cả các ProductGroup liên kết với Group
+	if err := models.DB.Where("group_id = ?", group.ID).Delete(&models.ProductGroup{}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete related ProductGroups"})
+		return
+	}
+
+	// Xóa Group
+	if err := models.DB.Delete(&group).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete Group"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Group and related records deleted successfully"})
 }

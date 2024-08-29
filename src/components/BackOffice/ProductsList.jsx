@@ -1,20 +1,21 @@
 import {
   Button,
-  Container,
   Paper,
   Table,
   TableBody,
   TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Typography
+  TableContainer, TableHead,
+  TableRow, TextField,
+  Typography,
+  tableCellClasses
 } from "@mui/material";
+import { styled } from '@mui/material/styles';
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; // Sử dụng useNavigate
 import { toast } from "react-toastify";
 import productService from "../../services/ProductService"; // Sử dụng dịch vụ sản phẩm
+import { COLORS } from '../../theme/themeColor';
+
   
   const ProductManagement = () => {
     const [products, setProducts] = useState([]);
@@ -25,6 +26,29 @@ import productService from "../../services/ProductService"; // Sử dụng dịc
     const [newProduct, setNewProduct] = useState({ name: "", description: "", price: 0 });
     const [error, setError] = useState("");
     const navigate = useNavigate(); // Thay thế useHistory bằng useNavigate
+
+    const StyledTableCell = styled(TableCell)(({ theme }) => ({
+      [`&.${tableCellClasses.head}`]: {
+        backgroundColor: COLORS.BLUE,
+        color: theme.palette.common.white,
+      },
+      [`&.${tableCellClasses.body}`]: {
+        fontSize: 14,
+        padding: '0px 5px',
+      },
+    }));
+  
+    const StyledTableRow = styled(TableRow)(({ theme }) => ({
+      '&:nth-of-type(odd)': {
+        backgroundColor: theme.palette.action.hover,
+      },
+      // hide last border
+      '&:last-child td, &:last-child th': {
+        border: 0,
+      },
+      // height: 20,
+      
+    }));
   
     useEffect(() => {
       const fetchProducts = async () => {
@@ -74,7 +98,7 @@ import productService from "../../services/ProductService"; // Sử dụng dịc
     };
   
     return (
-      <Container>
+      <div style={{ width: '100%' }}>
         <Typography variant="h4" gutterBottom>
           Product Management
         </Typography>
@@ -103,25 +127,25 @@ import productService from "../../services/ProductService"; // Sử dụng dịc
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>Image</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Description</TableCell>
-                <TableCell>price</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Actions</TableCell>
+                <StyledTableCell>ID</StyledTableCell>
+                <StyledTableCell>Image</StyledTableCell>
+                <StyledTableCell>Name</StyledTableCell>
+                <StyledTableCell>Description</StyledTableCell>
+                <StyledTableCell>price</StyledTableCell>
+                <StyledTableCell>Type</StyledTableCell>
+                <StyledTableCell align="right">Actions</StyledTableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredProducts.map((product, index) => (
-                <TableRow key={index}>
-                  <TableCell>{index}</TableCell>
-                  <TableCell> <img src={product.image_link_square} alt={product.image_link_square} style={{ width: 100 }} /></TableCell>
-                  <TableCell>{product.name}</TableCell>
-                  <TableCell>{product.description}</TableCell>
-                  <TableCell>{product.currency} {product.price}</TableCell>
-                  <TableCell>{product.type}</TableCell>
-                  <TableCell>
+                <StyledTableRow key={index}>
+                  <StyledTableCell>{index}</StyledTableCell>
+                  <StyledTableCell> <img src={product.image_link_square} alt={product.image_link_square} style={{ width: 100 }} /></StyledTableCell>
+                  <StyledTableCell>{product.name}</StyledTableCell>
+                  <StyledTableCell>{product.description}</StyledTableCell>
+                  <StyledTableCell>{product.currency} {product.price}</StyledTableCell>
+                  <StyledTableCell>{product.type}</StyledTableCell>
+                  <StyledTableCell align="right">
                     <Button
                       variant="outlined"
                       onClick={() => handleEditProduct(product.ID)}
@@ -136,15 +160,15 @@ import productService from "../../services/ProductService"; // Sử dụng dịc
                     >
                       Delete
                     </Button>
-                  </TableCell>
-                </TableRow>
+                  </StyledTableCell>
+                </StyledTableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
   
         
-      </Container>
+      </div>
     );
   };
   

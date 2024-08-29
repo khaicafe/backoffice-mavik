@@ -76,6 +76,7 @@ func UpdateMenu(c *gin.Context) {
 
 	// Cập nhật các trường
 	menu.Name = input.Name
+	menu.Image = input.Image
 
 	// Bắt đầu transaction để đảm bảo tính toàn vẹn dữ liệu
 	tx := models.DB.Begin()

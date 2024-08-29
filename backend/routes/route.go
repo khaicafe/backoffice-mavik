@@ -81,14 +81,16 @@ func SetupRouter() *gin.Engine {
 	r.DELETE("/api/modifier/:id", controllers.DeleteModifier)
 
 	// Group Modifier routes
-	r.POST("/api/modifierGroups", controllers.CreateGroup)
-	r.GET("/api/modifierGroups", controllers.GetGroups)
-	r.GET("/api/modifierGroups/:id", controllers.GetGroupByID)
-	r.PUT("/api/modifierGroups/:id", controllers.UpdateGroup)
-	r.DELETE("/api/modifierGroups/:id", controllers.DeleteGroup)
+	// r.POST("/api/modifierGroups", controllers.CreateGroup)
+	// r.GET("/api/modifierGroups", controllers.GetGroups)
+	// r.GET("/api/modifierGroups/:id", controllers.GetGroupByID)
+	// r.PUT("/api/modifierGroups/:id", controllers.UpdateGroup)
+	// r.DELETE("/api/modifierGroups/:id", controllers.DeleteGroup)
 
 	r.POST("/api/group-modifiers", controllers.CreateGroupModifier)
 	r.GET("/api/group-modifiers", controllers.GetAllGroupModifiers)
+	r.PUT("/api/group-modifiers/:id", controllers.UpdateGroupModifiers)
+	r.DELETE("/api/group-modifiers/:id", controllers.DeleteGroupModifier)
 
 	// Category Routes
 	r.POST("/api/category", controllers.CreateCategory)
