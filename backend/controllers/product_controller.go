@@ -13,32 +13,35 @@ import (
 func CreateProduct(c *gin.Context) {
 	var input models.Product
 
+	// Bind JSON to the product model
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Tạo mới Product
-	if err := models.DB.Create(&input).Error; err != nil {
+	// Begin a transaction
+	tx := models.DB.Begin()
+
+	// Reset IDs of related entities to prevent unique constraint errors
+	for i := range input.ProductGroups {
+		input.ProductGroups[i].Model = gorm.Model{} // Clear the ID and other gorm.Model fields
+	}
+	for i := range input.ProductTempsSizes {
+		input.ProductTempsSizes[i].Model = gorm.Model{} // Clear the ID and other gorm.Model fields
+	}
+	for i := range input.ProductCategory {
+		input.ProductCategory[i].Model = gorm.Model{} // Clear the ID and other gorm.Model fields
+	}
+
+	// Create the product record
+	if err := tx.Create(&input).Error; err != nil {
+		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Tạo các ProductGroup, ProductTempSize, ProductCategory liên quan
-	for _, pg := range input.ProductGroups {
-		pg.ProductID = int(input.ID)
-		models.DB.Create(&pg)
-	}
-
-	for _, pts := range input.ProductTempsSizes {
-		pts.ProductID = int(input.ID)
-		models.DB.Create(&pts)
-	}
-
-	for _, pc := range input.ProductCategory {
-		pc.ProductID = int(input.ID)
-		models.DB.Create(&pc)
-	}
+	// Commit the transaction
+	tx.Commit()
 
 	c.JSON(http.StatusOK, gin.H{"data": input})
 }
@@ -186,43 +189,6 @@ func UpdateProduct(c *gin.Context) {
 	// Commit transaction nếu không có lỗi
 	tx.Commit()
 	c.JSON(http.StatusOK, gin.H{"data": existingProduct})
-}
-
-func UpdateProducttest(c *gin.Context) {
-	id := c.Param("id")
-	var product models.Product
-
-	// Tìm product theo ID
-	if err := models.DB.First(&product, id).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Bind dữ liệu từ JSON vào product
-	if err := c.ShouldBindJSON(&product); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Xóa tất cả ProductTempSize liên quan đến sản phẩm này
-	if err := models.DB.Where("product_id = ?", id).Delete(&models.ProductTempSize{}).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete old ProductTempSize records"})
-		return
-	}
-
-	// Xóa tất cả ProductGroups liên quan đến sản phẩm này
-	if err := models.DB.Where("product_id = ?", id).Delete(&models.ProductGroup{}).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete old ProductGroup records"})
-		return
-	}
-
-	// Lưu product (bao gồm cả ProductTempSize và ProductGroups mới từ JSON)
-	if err := models.DB.Session(&gorm.Session{FullSaveAssociations: true}).Save(&product).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"data": product})
 }
 
 // DeleteProduct - Xóa sản phẩm theo ID

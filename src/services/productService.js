@@ -19,7 +19,7 @@ const getProduct = (id) => {
   return axios.put(`${API_URL}/${id}`, Product);
 }
 
-// Delete a Product by ID
+// Delete a Product by IDd
 const deleteProduct = (id) => {
   return axios.delete(`${API_URL}/${id}`);
 }
