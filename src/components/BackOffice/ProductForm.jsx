@@ -90,7 +90,7 @@ const AddProductForm = () => {
     }
 
     useEffect(() => {
-        console.log(maxQty, minQty, selectedModifiers)
+        //console.log(maxQty, minQty, selectedModifiers)
          // Cập nhật minQty dựa trên số lượng này
          if (minQty >= maxQty) {
              // set lại check default
@@ -99,10 +99,10 @@ const AddProductForm = () => {
         
         const countTrueDefaults = selectedModifiers?.filter(item => item.Default === true).length;
         if (countTrueDefaults > minQty){
-            console.log('countTrueDefaults', countTrueDefaults, minQty)
+            //console.log('countTrueDefaults', countTrueDefaults, minQty)
             const updatedItems = updateDefaults(selectedModifiers, minQty);
             setSelectedModifiers(updatedItems);
-            console.log('countTrueDefaults', selectedModifiers)
+            //console.log('countTrueDefaults', selectedModifiers)
         }
        
     }, [minQty, maxQty]);
@@ -133,15 +133,15 @@ const AddProductForm = () => {
         try {
             const response = await GroupService.createGroupModifier(groupData);
             setGroupModifiers([...groupModifiers, response.data]);
-            // console.log('groupModifiers', groupModifiers)
+            // //console.log('groupModifiers', groupModifiers)
             setNewGroupName(""); // Clear the input after creation
         } catch (error) {
-            console.error("Failed to create group modifier:", error);
+            //console.error("Failed to create group modifier:", error);
         }
     };
 
     const handleSubmitGroupModifier =  () => {
-        console.log("name group", newGroupName)
+        //console.log("name group", newGroupName)
         if (newGroupName && selectedModifiers.length > 0) {
              // Đảm bảo rằng tất cả thông tin được thu thập
             const groupData = {
@@ -191,7 +191,7 @@ const AddProductForm = () => {
             }
             return item;
         });
-        console.log('handleGroupModifierChange',updatedArray)
+        //console.log('handleGroupModifierChange',updatedArray)
 
         setSelectedGroupModifiers(updatedArray);
         // formValues.modifiers = updatedArray
@@ -208,7 +208,7 @@ const AddProductForm = () => {
             }
             return item;
         });
-        console.log('updatedArray', updatedArray);
+        //console.log('updatedArray', updatedArray);
         setSelectedGroupModifiers(updatedArray);
     };
      
@@ -266,7 +266,7 @@ const AddProductForm = () => {
 
     const fetchProduct = async (id) => {
         const response = await Product.getProduct(id);
-        console.log('edit', response.data)
+        console.log('edit get', response.data)
         const data = response.data;
 
        
@@ -275,10 +275,17 @@ const AddProductForm = () => {
         // Chỉ lọc sau khi category đã được load xong
         if (category.length > 0) {
             const filteredB = category.filter(item => categoryIds.includes(item.ID));
-            setSelectedCategory(filteredB);
-            // console.log('filteredB', filteredB);
+            // Thêm file vào mỗi đối tượng trong mảng
+            const temp = filteredB.map(item => {
+                return {
+                    ...item, // Giữ lại các thuộc tính cũ
+                    category_id: item.ID  // Thêm thuộc tính file mới
+                };
+            });
+            setSelectedCategory(temp);
+            console.log('filteredB', temp);
         } else {
-            console.log('Category chưa load kịp');
+            //console.log('Category chưa load kịp');
         }
      
 
@@ -294,19 +301,21 @@ const AddProductForm = () => {
             size_id: item.size_id,
         }));
         setShowTable(true);
-        console.log(selected);
+        //console.log(selected);
 
         // Cập nhật state cho cả selectedVariations và variations
         setSelectedVariations(selected);
         setVariations(selected);
 
         // modifier
+
         setSelectedGroupModifiers(data.product_groups.map(product_group => {
             // Ensure that Group and group_modifiers are not null or undefined
             const groupModifiers = product_group.group?.group_modifiers || [];
         
             return {
-                ID: product_group.ID,
+                ID: product_group.group.ID,
+                group_id:product_group.group.ID,
                 Name: product_group.group?.name || "",  // If name is not available, use an empty string
                 MinQty: product_group.group?.min_qty || 0,
                 MaxQty: product_group.group?.max_qty || 0,
@@ -324,7 +333,7 @@ const AddProductForm = () => {
 
         // Cập nhật URL hình ảnh nếu có
         setImageURL(data.image_link_square);
-        console.log(data.image_link_square)
+        //console.log(data.image_link_square)
         formValues.imagelink_square = data.image_link_square;
 
     
@@ -353,9 +362,9 @@ const AddProductForm = () => {
         try {
             const response = await CategoryService.getAllCategories();
             setCategory(response.data.dataTable || []);
-            // console.log('fetchCategory',response.data.dataTable)
+            // //console.log('fetchCategory',response.data.dataTable)
         } catch (error) {
-            console.error("Failed to fetch category:", error);
+            //console.error("Failed to fetch category:", error);
             setCategory([]);
         }
     };
@@ -364,9 +373,9 @@ const AddProductForm = () => {
         try {
             const response = await Temperture.getAllTemperatures();
             setTempertures(response.data.dataTable || []);
-            // console.log('setTempertures', response.data.dataTable);
+            // //console.log('setTempertures', response.data.dataTable);
         } catch (error) {
-            console.error("Failed to fetch temperatures:", error);
+            //console.error("Failed to fetch temperatures:", error);
             setTempertures([]);
         }
     };
@@ -375,9 +384,9 @@ const AddProductForm = () => {
         try {
             const response = await Modifiers.getAllModifiers();
             setModifiers(response.data.dataTable || []);
-            // console.log('modifier', response.data.dataTable);
+            // //console.log('modifier', response.data.dataTable);
         } catch (error) {
-            console.error("Failed to fetch modifiers:", error);
+            //console.error("Failed to fetch modifiers:", error);
             setModifiers([]);
         }
     };
@@ -386,9 +395,9 @@ const AddProductForm = () => {
         try {
             const response = await Size.getAllSizes();
             setSizes(response.data.dataTable || []);
-            // console.log('setSizes',response.data.dataTable);
+            // //console.log('setSizes',response.data.dataTable);
         } catch (error) {
-            console.error("Failed to fetch sizes:", error);
+            //console.error("Failed to fetch sizes:", error);
             setSizes([]);
         }
     };
@@ -397,9 +406,9 @@ const AddProductForm = () => {
         try {
             const response = await GroupService.getAllGroupModifiers(); // Use GroupService to fetch group modifiers
             setGroupModifiers(response.data || []);
-            // console.log('fetchGroupModifiers',response.data);
+            // //console.log('fetchGroupModifiers',response.data);
         } catch (error) {
-            console.error("Failed to fetch group modifiers:", error);
+            //console.error("Failed to fetch group modifiers:", error);
             setGroupModifiers([]);
         }
     };
@@ -415,7 +424,7 @@ const AddProductForm = () => {
     /// variation
 
     const handleVariationSelect = (variation) => {
-        console.log('handleVariationSelect',variation)
+        //console.log('handleVariationSelect',variation)
         let updatedSelections = [...selectedVariations];
 
         const index = updatedSelections.findIndex(v => v.variation === variation.variation);
@@ -433,7 +442,7 @@ const AddProductForm = () => {
             });
         }
         if(updatedSelections.length > 0) {
-            // console.log(updatedSelections)
+            // //console.log(updatedSelections)
             updatedSelections[0].default = true; 
         }
 
@@ -477,7 +486,7 @@ const AddProductForm = () => {
 
     // category
     const handleCategoryChange = (event, value) => {
-        console.log('category', value);
+        //console.log('category', value);
         setSelectedCategory(value); 
         value = value.map(category => {
             category.category_id = category.ID;
@@ -487,7 +496,7 @@ const AddProductForm = () => {
     };
     // image
     const handleImageSelect = (url) => {
-        console.log('Selected URL:', url);
+        //console.log('Selected URL:', url);
         // formValues.imagelink_square = url;
         setImageURL(url);
       };
@@ -508,57 +517,49 @@ const AddProductForm = () => {
     // save product information
 
     const handleSave = async () => {
-      
         const updated_selectedGroupModifiers = selectedGroupModifiers.map(group => ({
             ...group,
             group_id: group.ID
         }));
-        
-        
-        console.log(updated_selectedGroupModifiers);
-
+    
         const productData = {
             "name": formValues.name,
             "description": formValues.description,
             "price": formValues.price,
-            // "currency": formValues.currency,
-            "roasted": "Dark Roasted",
+            "type": formValues.type,
+            "currency": formValues.currency,
+            "roasted": formValues.roasted,
             "image_link_square": imageURL,
             "image_link_portrait": imageURL,
-            "ingredients": "Coffee beans, Water",
-            "special_ingredient": "Single Origin",
-            "discount": 0,
-            "average_rating": 4.8,
-            "ratings_count": "100",
-            "favourite": true,
-            "product_groups": updated_selectedGroupModifiers,
-            "product_temp_sizes": selectedVariations,
-            "product_category": formValues.Category
-        }
-        
-        console.log("Product data to be saved:", productData);
+            "ingredients": formValues.ingredients,
+            "special_ingredient": formValues.special_ingredient,
+            "discount": formValues.discount,
+            "average_rating": formValues.average_rating,
+            "ratings_count": formValues.ratings_count,
+            "favourite": formValues.favourite,
+            "product_groups": updated_selectedGroupModifiers.length > 0 ? updated_selectedGroupModifiers : formValues.product_groups,
+            "product_temp_sizes": selectedVariations.length > 0 ? selectedVariations : formValues.product_temp_sizes,
+            "product_category": selectedCategory.length > 0 ? selectedCategory : formValues.product_category
+        };
+        console.log('edit', productData)
         if (id) {
-             // Here you can call your API to save the product data
             try {
-                const response = await Product.updateProduct(id, productData);
-                console.log("Product updated successfully:", response.data);
+                const response = await Product.updateProduct(formValues.id, productData);
+                //console.log("Product updated successfully:", response.data);
             } catch (error) {
-                console.error("Failed to fetch product:", error);
+                //console.error("Failed to update product:", error);
             }
-        }else {
-             // Here you can call your API to save the product data
+        } else {
             try {
                 const response = await Product.createProduct(productData);
-                console.log("Product saved successfully:", response.data);
+                //console.log("Product saved successfully:", response.data);
             } catch (error) {
-                console.error("Failed to fetch product:", error);
+                //console.error("Failed to create product:", error);
             }
         }
         navigate("/products");
-       
-
     };
-
+    
    
 
 
@@ -641,10 +642,7 @@ const AddProductForm = () => {
                         disableCloseOnSelect
                         options={groupModifiers}
                         value={selectedGroupModifiers}  // Đặt giá trị đã chọn vào đây
-                        isOptionEqualToValue={(option, value) =>
-                            // fix warning
-                            option.ID === value.ID
-                        } // Tùy chỉnh cách so sánh
+                           isOptionEqualToValue={(option, value) => option.ID === value.ID}
                         getOptionLabel={(option) =>{
                             return option ? option.Name || "" : ""; // Đảm bảo trả về một chuỗi hợp lệ
                           }}
@@ -813,10 +811,7 @@ const AddProductForm = () => {
                     multiple
                     options={category}
                     value={selectedCategory}  // Đặt giá trị đã chọn vào đây
-                    isOptionEqualToValue={(option, value) =>
-                        // fix warning
-                        option.ID === value.ID
-                    } // Tùy chỉnh cách so sánh
+                    isOptionEqualToValue={(option, value) => option.ID === value.ID}
                     getOptionLabel={(option) =>{
                         return option ? option.name || "" : ""; // Đảm bảo trả về một chuỗi hợp lệ
                       }}
