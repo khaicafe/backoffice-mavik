@@ -1,7 +1,16 @@
+import CategoryIcon from '@mui/icons-material/Category';
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import LayersIcon from '@mui/icons-material/Layers';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import MenuIcon from "@mui/icons-material/Menu";
 import PeopleIcon from "@mui/icons-material/People";
+import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import StraightenIcon from '@mui/icons-material/Straighten';
+import ThermostatIcon from '@mui/icons-material/Thermostat';
+import TuneIcon from '@mui/icons-material/Tune';
 import {
   AppBar,
   Box,
@@ -89,8 +98,6 @@ const Layout = () => {
     return <Navigate to="/login" />;
   }
   const user = jwtDecode(token);
-
-
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -133,72 +140,70 @@ const Layout = () => {
             )}
           </IconButton>
         </DrawerHeader>
-        {/* <Divider /> */}
+
         {user?.role === 'admin' && (
         <List>
-         
           <ListItem button component={Link} to="/user-management">
             <ListItemIcon>
               <PeopleIcon />
             </ListItemIcon>
             <ListItemText primary="User Management" />
           </ListItem>
-          
         </List>
         )}
         <Divider />
         <List>
           <ListItem button component={Link} to="/products">
             <ListItemIcon>
-              <PeopleIcon />
+              <ShoppingCartIcon />
             </ListItemIcon>
             <ListItemText primary="Product" />
           </ListItem>
           <ListItem button component={Link} to="/Sizes">
             <ListItemIcon>
-              <PeopleIcon />
+              <StraightenIcon />
             </ListItemIcon>
             <ListItemText primary="Size" />
           </ListItem>
           <ListItem button component={Link} to="/Modifiers">
             <ListItemIcon>
-              <PeopleIcon />
+              <TuneIcon />
             </ListItemIcon>
             <ListItemText primary="Modifier" />
           </ListItem>
           <ListItem button component={Link} to="/Temperatures">
             <ListItemIcon>
-              <PeopleIcon />
+              <ThermostatIcon />
             </ListItemIcon>
             <ListItemText primary="Temperature" />
           </ListItem>
           <ListItem button component={Link} to="/Categories">
             <ListItemIcon>
-              <PeopleIcon />
+              <CategoryIcon />
             </ListItemIcon>
             <ListItemText primary="Category" />
           </ListItem>
           <ListItem button component={Link} to="/groupModifier">
             <ListItemIcon>
-              <PeopleIcon />
+              <LayersIcon />
             </ListItemIcon>
             <ListItemText primary="Group Modifier" />
           </ListItem>
           <ListItem button component={Link} to="/uploads">
             <ListItemIcon>
-              <PeopleIcon />
+              <CloudUploadIcon />
             </ListItemIcon>
             <ListItemText primary="Upload" />
           </ListItem>
           <ListItem button component={Link} to="/combo">
             <ListItemIcon>
-              <PeopleIcon />
+              <LocalOfferIcon />
             </ListItemIcon>
             <ListItemText primary="Combo" />
           </ListItem>
           <ListItem button component={Link} to="/menu">
             <ListItemIcon>
-              <PeopleIcon />
+              <RestaurantMenuIcon />
             </ListItemIcon>
             <ListItemText primary="Menu" />
           </ListItem>

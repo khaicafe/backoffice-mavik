@@ -1,12 +1,12 @@
 import {
     Autocomplete,
+    Box,
     Button,
     Checkbox,
+    CircularProgress,
     Container,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
+    Grid,
+    Modal,
     Paper,
     Table,
     TableBody,
@@ -15,80 +15,179 @@ import {
     TableHead,
     TableRow,
     TextField,
-    Typography
-} from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import { toast } from "react-toastify";
-import CategoryService from '../../services/CategoryService';
-import ComboService from '../../services/ComboService';
-import ProductService from '../../services/ProductService';
+    Typography,
+} from "@mui/material";
 
-const Combo = () => {
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import CategoryService from "../../services/CategoryService";
+import ComboService from "../../services/ComboService";
+import ProductService from "../../services/ProductService";
+import ImagePicker from '../BaseComponent/ImagePicker';
+
+const modalStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 800,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+  };
+  
+
+const ComboList = () => {
     const [combos, setCombos] = useState([]);
     const [filteredCombos, setFilteredCombos] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [openAddComboDialog, setOpenAddComboDialog] = useState(false);
-    const [newCombo, setNewCombo] = useState({ name: '', price: 0, categories: [], product_combos: [] });
+    const [searchTerm, setSearchTerm] = useState("");
+    const [imageURL, setImageURL] = useState('');
+    const [selectedCombo, setSelectedCombo] = useState(null);
+    const [openModal, setOpenModal] = useState(false);
+    const [comboDetails, setComboDetails] = useState({ name: "", price: 0, products: [], categories: [] });
+    const [loading, setLoading] = useState(true);
     const [products, setProducts] = useState([]);
-    const [selectedProducts, setSelectedProducts] = useState([]);
     const [categories, setCategories] = useState([]);
+    const [selectedProducts, setSelectedProducts] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [qty, setQty] = useState({});
     const [productPrices, setProductPrices] = useState({});
+    
+    useEffect(() => {
+        const fetchCombos = async () => {
+            const response = await ComboService.getAllCombos();
+            setCombos(response.data);
+            setFilteredCombos(response.data);
+        };
+
+        fetchCombos();
+    }, []);
 
     useEffect(() => {
-        fetchCombos();
+        const fetchProducts = async () => {
+            try {
+                const response = await ProductService.getAllProducts();
+                setProducts(response.data || []);
+                setLoading(false);
+            } catch (error) {
+                console.error("Failed to fetch products:", error);
+                setLoading(false);
+            }
+        };
+
+        const fetchCategories = async () => {
+            try {
+                const response = await CategoryService.getAllCategories();
+                setCategories(response.data.dataTable || []);
+            } catch (error) {
+                console.error("Failed to fetch categories:", error);
+            }
+        };
+
         fetchProducts();
         fetchCategories();
     }, []);
 
-    const fetchCombos = async () => {
-        const response = await ComboService.getAllCombos();
-        setCombos(response.data);
-        setFilteredCombos(response.data);
+    useEffect(() => {
+        if (searchTerm) {
+            const results = combos.filter((combo) =>
+                combo.name.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            setFilteredCombos(results);
+        } else {
+            setFilteredCombos(combos);
+        }
+    }, [searchTerm, combos]);
+
+    // image
+    const handleImageSelect = (url) => {
+        console.log('Selected URL:', url);
+        // formValues.imagelink_square = url;
+        setImageURL(url);
+        };
+
+    const handleOpenModal = (combo = null) => {
+        console.log("Open modal", combo);
+        if (combo) {
+            // set image
+            setImageURL(combo.image_link_square);
+            // Fill modal with combo details for editing
+            setComboDetails({
+                name: combo.name,
+                price: combo.price,
+                products: combo.product_combos.map(pc => ({
+                    product_id: pc.product_id,
+                    qty: pc.qty,
+                    price: pc.price
+                })),
+                categories: combo.categories.map(cat => cat.ID)
+            });
+            setSelectedCombo(combo);
+            setSelectedProducts(combo.product_combos.map(pc => ({
+                ID: pc.product_id,
+                name: pc.Product.name
+            })));
+            setSelectedCategories(combo.categories.map(cat => ({
+                ID: cat.Category.ID,
+                name: cat.Category.name
+            })));
+            setQty(combo.product_combos.reduce((acc, curr) => ({ ...acc, [curr.product_id]: curr.qty }), {}));
+            setProductPrices(combo.product_combos.reduce((acc, curr) => ({ ...acc, [curr.product_id]: curr.price }), {}));
+        } else {
+            // Reset modal for creating new combo
+            setComboDetails({ name: "", price: 0, products: [], categories: [] });
+            setSelectedProducts([]);
+            setSelectedCategories([]);
+            setQty({});
+            setProductPrices({});
+            setSelectedCombo(null);
+        }
+        setOpenModal(true);
     };
 
-    const fetchProducts = async () => {
-        const response = await ProductService.getAllProducts();
-        setProducts(response.data || []); // Ensure products is always an array
-    };
-
-    const fetchCategories = async () => {
-        const response = await CategoryService.getAllCategories();
-        console.log(response)
-        setCategories(response.data.dataTable || []); // Ensure categories is always an array
-    };
-
-    const handleAddCombo = () => {
-        setOpenAddComboDialog(true);
+    const handleCloseModal = () => {
+        setOpenModal(false);
     };
 
     const handleSaveCombo = async () => {
-        const comboData = {
-            ...newCombo,
-            categories: selectedCategories.map(category => ({ category_id: category.ID })),
-            product_combos: selectedProducts.map(product => ({
-                product_id: product.ID,
-                qty: qty[product.ID] || 1,
-                price: productPrices[product.ID] || 0,
-            })),
-        };
+        try {
+            const comboData = {
+                name: comboDetails.name,
+                price: comboDetails.price,
+                image_link_square: imageURL,
+                image_link_portrait: imageURL,
+                type: "Combo",
+                product_combos: selectedProducts.map((product) => ({
+                    product_id: product.ID,
+                    qty: qty[product.ID] || 1,
+                    price: productPrices[product.ID] || 0,
+                })),
+                categories: selectedCategories.map((category) => ({
+                    category_id: category.ID,
+                })),
+            };
 
-        await ComboService.createCombo(comboData);
-        fetchCombos();
-        setOpenAddComboDialog(false);
-        setNewCombo({ name: '', price: 0, categories: [], product_combos: [] });
-        setSelectedProducts([]);
-        setSelectedCategories([]);
-        setQty({});
-        setProductPrices({});
+            console.log('comboData', comboData);
+
+            if (selectedCombo) {
+                await ComboService.updateCombo(selectedCombo.ID, comboData);
+                toast.success("Combo updated successfully.");
+            } else {
+                await ComboService.createCombo(comboData);
+                toast.success("Combo created successfully.");
+            }
+
+            setOpenModal(false);
+            const response = await ComboService.getAllCombos();
+            setCombos(response.data);
+            setFilteredCombos(response.data);
+        } catch (error) {
+            console.error("Failed to save combo:", error);
+            toast.error("Failed to save combo.");
+        }
     };
 
-    const handleEditCombo = (id) => {
-        // Điều hướng đến trang chỉnh sửa combo
-        // navigate(`/edit-combo/${id}`);
-    };
-    
     const handleDeleteCombo = async (id) => {
         try {
             await ComboService.deleteCombo(id);
@@ -101,44 +200,65 @@ const Combo = () => {
         }
     };
 
+    const changeCategory = async (value) => {
+        console.log("Changing category", value);
+        setSelectedCategories(value);
+    }
+
     return (
         <Container>
             <Typography variant="h4" gutterBottom>
-                Combo
+                Combo List
             </Typography>
-
-            <Button variant="contained" color="primary" onClick={handleAddCombo}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+            <Button
+                variant="contained"
+                color="primary"
+                onClick={() => handleOpenModal()}
+            >
                 Add Combo
             </Button>
 
-            <TableContainer component={Paper} sx={{ marginTop: 2 }}>
+            <TextField
+                label="Search"
+                variant="outlined"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ width: '300px' }} // Đặt độ rộng cho TextField tìm kiếm
+            />
+            </div>
+            <TableContainer component={Paper}>
                 <Table>
                     <TableHead>
                         <TableRow>
                             <TableCell>ID</TableCell>
+                            <TableCell>Image</TableCell>
                             <TableCell>Name</TableCell>
+                            <TableCell>Description</TableCell>
                             <TableCell>Price</TableCell>
                             <TableCell>Actions</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {filteredCombos.map((combo, index) => (
+                        {filteredCombos.map((combo) => (
                             <TableRow key={combo.ID}>
                                 <TableCell>{combo.ID}</TableCell>
+                                <TableCell> <img src={combo.image_link_square} alt={combo.image_link_square} style={{ width: 100 }} /></TableCell>
                                 <TableCell>{combo.name}</TableCell>
+                                <TableCell>{combo.description}</TableCell>
                                 <TableCell>{combo.price}</TableCell>
                                 <TableCell>
-                                    <Button 
-                                        variant="outlined" 
-                                        color="primary" 
-                                        onClick={() => handleEditCombo(combo.ID)}
+                                    <Button
+                                        variant="outlined"
+                                        color="primary"
+                                        onClick={() => handleOpenModal(combo)}
                                         sx={{ marginRight: 1 }}
                                     >
                                         Edit
                                     </Button>
-                                    <Button 
-                                        variant="outlined" 
-                                        color="secondary" 
+                                    <Button
+                                        variant="outlined"
+                                        color="secondary"
                                         onClick={() => handleDeleteCombo(combo.ID)}
                                     >
                                         Delete
@@ -150,89 +270,112 @@ const Combo = () => {
                 </Table>
             </TableContainer>
 
-            <Dialog open={openAddComboDialog} onClose={() => setOpenAddComboDialog(false)}>
-                <DialogTitle>Add Combo</DialogTitle>
-                <DialogContent>
+            <Modal
+                open={openModal}
+                onClose={handleCloseModal}
+                aria-labelledby="modal-title"
+                aria-describedby="modal-description"
+            >
+                <Box sx={modalStyle}>
+                    <Typography id="modal-title" variant="h6" component="h2">
+                        {selectedCombo ? "Edit Combo" : "Add Combo"}
+                    </Typography>
+
+                    {/* image */}
+                    <Grid item xs={12} sm={6}>
+                        <Typography variant="h6" component="h3" gutterBottom>
+                            Combo image
+                        </Typography>
+                        <ImagePicker onImageSelect={handleImageSelect} defaultImage= {imageURL}/>
+                    </Grid>
+
                     <TextField
-                        label="Name"
-                        value={newCombo.name}
-                        onChange={(e) => setNewCombo({ ...newCombo, name: e.target.value })}
+                        label="Combo Name"
+                        variant="outlined"
                         fullWidth
-                        margin="dense"
+                        margin="normal"
+                        value={comboDetails.name}
+                        onChange={(e) => setComboDetails({ ...comboDetails, name: e.target.value })}
                     />
+
                     <TextField
                         label="Price"
-                        type="number"
-                        value={newCombo.price}
-                        onChange={(e) => setNewCombo({ ...newCombo, price: parseFloat(e.target.value) })}
+                        variant="outlined"
                         fullWidth
-                        margin="dense"
+                        margin="normal"
+                        type="number"
+                        value={comboDetails.price}
+                        onChange={(e) => setComboDetails({ ...comboDetails, price: parseFloat(e.target.value) })}
                     />
+
+                    {loading ? (
+                        <CircularProgress />
+                    ) : (
+                        <Autocomplete
+                            multiple
+                            options={products}
+                            value={selectedProducts}
+                            getOptionLabel={(option) => option.name}
+                            isOptionEqualToValue={(option, value) => option.ID === value.ID}
+                            onChange={(event, newValue) => setSelectedProducts(newValue)}
+                            renderOption={(props, option) => {
+                                const { key, ...otherProps } = props; // Tách key ra khỏi props
+                                
+                                return (
+                                    <li {...otherProps} key={key}>
+                                        <Checkbox
+                                            checked={selectedProducts.some((product) => product.ID === option.ID)}
+                                        />
+                                        {option.name}
+                                        <TextField
+                                            label="Qty"
+                                            type="number"
+                                            value={qty[option.ID] || 1}
+                                            onChange={(e) => setQty({ ...qty, [option.ID]: parseInt(e.target.value, 10) })}
+                                            sx={{ width: 60, ml: 2 }}
+                                        />
+                                        <TextField
+                                            label="Price"
+                                            type="number"
+                                            value={productPrices[option.ID] || 0}
+                                            onChange={(e) => setProductPrices({ ...productPrices, [option.ID]: parseFloat(e.target.value) })}
+                                            sx={{ width: 80, ml: 2 }}
+                                        />
+                                    </li>
+                                );
+                            }}
+                            
+                            renderInput={(params) => (
+                                <TextField {...params} label="Select Products" placeholder="Select products" />
+                            )}
+                        />
+                    )}
 
                     <Autocomplete
                         multiple
                         options={categories}
-                        getOptionLabel={(option) => option.name}
                         value={selectedCategories}
-                        onChange={(event, newValue) => setSelectedCategories(newValue)}
-                        renderInput={(params) => (
-                            <TextField {...params} label="Categories" placeholder="Select Categories" />
-                        )}
-                        sx={{ marginBottom: 2 }}
-                    />
-
-                    <Autocomplete
-                        multiple
-                        options={products}
                         getOptionLabel={(option) => option.name}
-                        value={selectedProducts}
-                        isOptionEqualToValue={(option, value) =>
-                            // fix warning
-                            option.ID === value.ID
-                        } // Tùy chỉnh cách so sánh
-                        onChange={(event, newValue) => setSelectedProducts(newValue)}
-                        renderOption={(props, option) => {
-                            const { key, ...otherProps } = props; // Tách key ra khỏi props
-                        
-                            return (
-                                <li key={key} {...otherProps}>
-                                    <Checkbox
-                                        checked={selectedProducts.some((product) => product.ID === option.ID)}
-                                    />
-                                    {option.name}
-                                    <TextField
-                                        label="Qty"
-                                        type="number"
-                                        value={qty[option.ID] || 1}
-                                        onChange={(e) => setQty({ ...qty, [option.ID]: parseInt(e.target.value, 10) })}
-                                        sx={{ width: 60, ml: 2 }}
-                                    />
-                                    <TextField
-                                        label="Price"
-                                        type="number"
-                                        value={productPrices[option.ID] || 0}
-                                        onChange={(e) => setProductPrices({ ...productPrices, [option.ID]: parseFloat(e.target.value) })}
-                                        sx={{ width: 80, ml: 2 }}
-                                    />
-                                </li>
-                            );
-                        }}
-                        
+                        isOptionEqualToValue={(option, value) => option.ID === value.ID}
+                        onChange={(event, newValue) => changeCategory(newValue)}
                         renderInput={(params) => (
-                            <TextField {...params} label="Products" placeholder="Select Products" />
+                            <TextField {...params} label="Select Categories" placeholder="Select categories" />
                         )}
+                        sx={{ marginTop: 2 }}
                     />
 
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpenAddComboDialog(false)}>Cancel</Button>
-                    <Button onClick={handleSaveCombo} variant="contained" color="primary">
-                        Save
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleSaveCombo}
+                        sx={{ marginTop: 2 }}
+                    >
+                        {selectedCombo ? "Save Changes" : "Create Combo"}
                     </Button>
-                </DialogActions>
-            </Dialog>
+                </Box>
+            </Modal>
         </Container>
     );
 };
 
-export default Combo;
+export default ComboList;

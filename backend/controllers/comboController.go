@@ -10,7 +10,7 @@ import (
 // GetCombos - Lấy danh sách tất cả các combo
 func GetCombos(c *gin.Context) {
 	var combos []models.Combo
-	if err := models.DB.Preload("Categories").Preload("ProductCombos").Find(&combos).Error; err != nil {
+	if err := models.DB.Preload("Categories.Category").Preload("ProductCombos.Product").Preload("ProductCombos.Combo").Find(&combos).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -46,20 +46,29 @@ func CreateCombo(c *gin.Context) {
 func UpdateCombo(c *gin.Context) {
 	id := c.Param("id")
 	var combo models.Combo
+
+	// Kiểm tra combo có tồn tại không
 	if err := models.DB.First(&combo, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Combo not found"})
 		return
 	}
 
+	// Xóa các bản ghi liên quan trong bảng product_combos và combo_categories
+	models.DB.Where("combo_id = ?", id).Delete(&models.ProductCombo{})
+	models.DB.Where("combo_id = ?", id).Delete(&models.ComboCategory{})
+
+	// Nhận dữ liệu JSON từ yêu cầu và ràng buộc vào biến combo
 	if err := c.ShouldBindJSON(&combo); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
+	// Cập nhật lại combo và lưu các liên kết mới
 	if err := models.DB.Save(&combo).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	c.JSON(http.StatusOK, combo)
 }
 
