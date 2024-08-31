@@ -13,8 +13,10 @@ import { styled } from '@mui/material/styles';
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; // Sử dụng useNavigate
 import { toast } from "react-toastify";
+import config from '../../config';
 import productService from "../../services/ProductService"; // Sử dụng dịch vụ sản phẩm
 import { COLORS } from '../../theme/themeColor';
+const BaseUrl = config.BaseUrl
 
   
   const ProductManagement = () => {
@@ -140,7 +142,7 @@ import { COLORS } from '../../theme/themeColor';
               {filteredProducts.map((product, index) => (
                 <StyledTableRow key={index}>
                   <StyledTableCell>{index}</StyledTableCell>
-                  <StyledTableCell> <img src={product.image_link_square} alt={product.image_link_square} style={{ width: 100 }} /></StyledTableCell>
+                  <StyledTableCell> <img src={BaseUrl+product.image_link_square} alt={product.image_link_square} style={{ width: 100 }} /></StyledTableCell>
                   <StyledTableCell>{product.name}</StyledTableCell>
                   <StyledTableCell>{product.description}</StyledTableCell>
                   <StyledTableCell>{product.currency} {product.price}</StyledTableCell>

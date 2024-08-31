@@ -19,6 +19,8 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import config from '../../config';
 import CategoryService from "../../services/CategoryService";
 import GroupService from "../../services/GroupModifierService"; // Import the service for Group CRUD operations
 import Modifiers from "../../services/ModifierService";
@@ -27,6 +29,8 @@ import Size from "../../services/SizeService";
 import Temperture from "../../services/TemperatureService";
 import { COLORS } from "../../theme/themeColor";
 import ImagePicker from '../BaseComponent/ImagePicker';
+
+const BaseUrl = config.BaseUrl
 
 const AddProductForm = () => {
     const initialFormValues = {
@@ -543,6 +547,7 @@ const AddProductForm = () => {
             try {
                 const response = await Product.updateProduct(id, productData);
                 console.log("Product updated successfully:", response.data);
+                toast.success("Product updated successfully:");
             } catch (error) {
                 console.error("Failed to fetch product:", error);
             }
@@ -551,6 +556,7 @@ const AddProductForm = () => {
             try {
                 const response = await Product.createProduct(productData);
                 console.log("Product saved successfully:", response.data);
+                toast.success("Product created successfully.");
             } catch (error) {
                 console.error("Failed to fetch product:", error);
             }
@@ -569,7 +575,7 @@ const AddProductForm = () => {
                 <Typography variant="h6" component="h3" gutterBottom>
                     Product image
                 </Typography>
-                <ImagePicker onImageSelect={handleImageSelect} defaultImage= {imageURL}/>
+                <ImagePicker onImageSelect={handleImageSelect} defaultImage= {BaseUrl+imageURL}/>
             </Grid>
 
             <Grid item xs={12} sm={6}>

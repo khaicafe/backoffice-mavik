@@ -16,6 +16,7 @@ func CleanProducts(products []models.Product) []map[string]interface{} {
 			"image_link_square":   product.ImageLinkSquare,
 			"image_link_portrait": product.ImageLinkPortrait,
 			"ingredients":         product.Ingredients,
+			"discount":            product.Discount,
 			"special_ingredient":  product.SpecialIngredient,
 			"average_rating":      product.AverageRating,
 			"ratings_count":       product.RatingsCount,
@@ -50,8 +51,8 @@ func CleanGroupModifiers(groups []models.ProductGroup) []map[string]interface{} 
 		modifiers := CleanModifiers(group.Group.GroupModifiers)
 		groupMap := map[string]interface{}{
 			"group_id": group.GroupID,
-			"max_qty":  group.Group.MaxQty,
-			"min_qty":  group.Group.MinQty,
+			"maxqty":   group.Group.MaxQty,
+			"minqty":   group.Group.MinQty,
 			"name":     group.Group.Name,
 			"type":     group.Type,
 			"options":  modifiers,

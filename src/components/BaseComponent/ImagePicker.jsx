@@ -13,7 +13,8 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-
+import config from '../../config';
+const BaseUrl = config.BaseUrl
 
 const modalStyle = {
   position: 'absolute',
@@ -39,7 +40,7 @@ function ImagePicker({ onImageSelect, defaultImage}) {
   const handleClose = () => setOpen(false);
 
   useEffect(() => {
-    fetch('http://localhost:8080/images')
+    fetch(BaseUrl + '/images')
       .then(response => response.json())
       .then(data => {
        
@@ -108,7 +109,7 @@ function ImagePicker({ onImageSelect, defaultImage}) {
                   >
                     <TableCell component="th" scope="row">
                      
-                    <img src={image.URL} alt={image.FileName} style={{ width: 50 }} />
+                    <img src={BaseUrl+ image.URL} alt={image.FileName} style={{ width: 50 }} />
                     
                     </TableCell>
                     <TableCell align="left">{image.FileName}</TableCell>

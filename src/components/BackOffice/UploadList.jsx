@@ -12,7 +12,10 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import React, { useEffect, useState } from 'react';
+import config from '../../config';
 import { COLORS } from '../../theme/themeColor';
+
+const BaseUrl = config.BaseUrl
   
   function UploadComponent() {
     const [files, setFiles] = useState([]);
@@ -44,7 +47,7 @@ import { COLORS } from '../../theme/themeColor';
 
     const fetchImages = () => {
       setLoading(true);
-      fetch('http://localhost:8080/images')
+      fetch(BaseUrl+ '/images')
         .then(response => response.json())
         .then(data => {
           setImages(data.data);
@@ -73,7 +76,7 @@ import { COLORS } from '../../theme/themeColor';
       }
 
       try {
-          const response = await fetch('http://localhost:8080/api/uploads', {
+          const response = await fetch(BaseUrl+'/api/uploads', {
               method: 'POST',
               body: formData,
           });
@@ -146,7 +149,7 @@ import { COLORS } from '../../theme/themeColor';
                   </StyledTableCell>
                   <StyledTableCell>{image.FileName}</StyledTableCell>
                   <StyledTableCell align="left">
-                    <img src={image.URL} alt={image.FileName} style={{ width: 100 }} />
+                    <img src={BaseUrl + image.URL} alt={image.FileName} style={{ width: 100 }} />
                   </StyledTableCell>
                   <StyledTableCell align="left">
                     <a href={image.URL} target="_blank" rel="noopener noreferrer">

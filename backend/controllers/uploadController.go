@@ -51,7 +51,7 @@ func UploadImages(c *gin.Context) {
 		}
 
 		// Tạo URL cho file
-		url := fmt.Sprintf("http://localhost:8080/%s/%s/%s", "uploadImage", folderName, cleanedFileName)
+		url := fmt.Sprintf("/%s/%s/%s", "uploadImage", folderName, cleanedFileName)
 
 		// Lưu thông tin vào database
 		image := models.Image{
