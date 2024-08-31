@@ -16,10 +16,12 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import config from '../../config';
 import ComboService from "../../services/ComboService";
 import MenuService from "../../services/MenuService";
 import ProductService from "../../services/ProductService";
 import ImagePicker from '../BaseComponent/ImagePicker';
+const BaseUrl = config.BaseUrl
 
 const modalStyle = {
     position: 'absolute',
@@ -223,7 +225,7 @@ const MenuList = () => {
                         {filteredMenus.map((menu) => (
                             <TableRow key={menu.ID}>
                                 <TableCell>{menu.ID}</TableCell>
-                                <TableCell><img src={menu.image} alt={menu.image} style={{ width: 70 }} /></TableCell>
+                                <TableCell><img src={BaseUrl + menu.image} alt={menu.image} style={{ width: 70 }} /></TableCell>
                                 <TableCell>{menu.name}</TableCell>
                                 <TableCell align="right">
                                     <Button
@@ -264,7 +266,7 @@ const MenuList = () => {
                         <Typography variant="h6" component="h3" gutterBottom>
                             Menu image
                         </Typography>
-                        <ImagePicker onImageSelect={setImageURL} defaultImage={imageURL} />
+                        <ImagePicker onImageSelect={setImageURL} defaultImage={BaseUrl + imageURL} />
                     </Grid>
 
                     <TextField
@@ -297,7 +299,7 @@ const MenuList = () => {
                                 {selectedProducts.map((product) => (
                                     <TableRow key={product.ID}>
                                         <TableCell>{product.ID}</TableCell>
-                                        <TableCell><img src={product.image_link_square} alt={product.image_link_square} style={{ width: 70 }} /></TableCell>
+                                        <TableCell><img src={BaseUrl + product.image_link_square} alt={product.image_link_square} style={{ width: 70 }} /></TableCell>
                                         <TableCell>{product.name}</TableCell>
                                         <TableCell>{product.price}</TableCell>
                                        
@@ -306,7 +308,7 @@ const MenuList = () => {
                                 {selectedCombos.map((combo) => (
                                     <TableRow key={combo.ID}>
                                         <TableCell>{combo.ID}</TableCell>
-                                        <TableCell><img src={combo.image_link_square} alt={combo.image_link_square} style={{ width: 70 }} /></TableCell>
+                                        <TableCell><img src={BaseUrl + combo.image_link_square} alt={combo.image_link_square} style={{ width: 70 }} /></TableCell>
                                         <TableCell>{combo.name}</TableCell>
                                         <TableCell>{combo.price}</TableCell>
                                         

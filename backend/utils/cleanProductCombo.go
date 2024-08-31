@@ -95,12 +95,15 @@ func CleanProductTempSizes(sizes []models.ProductTempSize) []map[string]interfac
 
 func CleanCombos(combos []models.Combo) []map[string]interface{} {
 	var cleanedCombos []map[string]interface{}
+	modifiers := []string{}
+	productTempSizes := []string{}
 	for _, combo := range combos {
 		comboMap := map[string]interface{}{
 			"ID":                  combo.ID,
 			"name":                combo.Name,
 			"price":               combo.Price,
 			"currency":            combo.Currency,
+			"discount":            combo.Discount,
 			"image_link_square":   combo.ImageLinkSquare,
 			"image_link_portrait": combo.ImageLinkPortrait,
 			"average_rating":      combo.AverageRating,
@@ -108,8 +111,15 @@ func CleanCombos(combos []models.Combo) []map[string]interface{} {
 			"favourite":           combo.Favourite,
 			"categories":          CleanComboCategories(combo.Categories),
 			"product_combos":      CleanProductCombos(combo.ProductCombos),
+			"modifiers":           modifiers,        // Khởi tạo mảng rỗng
+			"product_temp_sizes":  productTempSizes, // Khởi tạo mảng rỗng
 			"type":                combo.Type,
 		}
+		// Nếu bạn muốn chắc chắn rằng modifiers là slice rỗng chứ không phải nil
+
+		comboMap["modifiers"] = []string{}
+		comboMap["product_temp_sizes"] = []string{}
+
 		cleanedCombos = append(cleanedCombos, comboMap)
 	}
 	return cleanedCombos

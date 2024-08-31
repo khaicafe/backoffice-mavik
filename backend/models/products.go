@@ -125,6 +125,7 @@ type Combo struct {
 	Name              string          `json:"name"`
 	Price             float64         `json:"price"`
 	Currency          string          `json:"currency"`
+	Discount          float64         `json:"discount"`
 	ImageLinkSquare   string          `json:"image_link_square"`
 	ImageLinkPortrait string          `json:"image_link_portrait"`
 	Type              string          `json:"type"`

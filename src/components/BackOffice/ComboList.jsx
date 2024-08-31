@@ -23,11 +23,13 @@ import {
 import { styled } from '@mui/material/styles';
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import config from '../../config';
 import CategoryService from "../../services/CategoryService";
 import ComboService from "../../services/ComboService";
 import ProductService from "../../services/ProductService";
 import { COLORS } from '../../theme/themeColor';
 import ImagePicker from '../BaseComponent/ImagePicker';
+const BaseUrl = config.BaseUrl
 
 const modalStyle = {
     position: 'absolute',
@@ -270,7 +272,7 @@ const ComboList = () => {
                         {filteredCombos.map((combo) => (
                             <StyledTableRow key={combo.ID}>
                                 <StyledTableCell>{combo.ID}</StyledTableCell>
-                                <StyledTableCell> <img src={combo.image_link_square} alt={combo.image_link_square} style={{ width: 100 }} /></StyledTableCell>
+                                <StyledTableCell> <img src={BaseUrl + combo.image_link_square} alt={combo.image_link_square} style={{ width: 100 }} /></StyledTableCell>
                                 <StyledTableCell>{combo.name}</StyledTableCell>
                                 <StyledTableCell>{combo.description}</StyledTableCell>
                                 <StyledTableCell>{combo.price}</StyledTableCell>
@@ -313,7 +315,7 @@ const ComboList = () => {
                         <Typography variant="h6" component="h3" gutterBottom>
                             Combo image
                         </Typography>
-                        <ImagePicker onImageSelect={handleImageSelect} defaultImage= {imageURL}/>
+                        <ImagePicker onImageSelect={handleImageSelect} defaultImage= {BaseUrl+imageURL}/>
                     </Grid>
 
                     <TextField

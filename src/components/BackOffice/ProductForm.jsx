@@ -280,15 +280,15 @@ const AddProductForm = () => {
         // Chỉ lọc sau khi category đã được load xon
         if (category.length > 0) {
             const filteredB = category.filter(item => categoryIds.includes(item.ID));
+            filteredB.forEach(item => {
+                item.category_id = item.ID;
+            });
             setSelectedCategory(filteredB);
-            // console.log('filteredB', filteredB);
+            console.log('category', filteredB);
         } else {
             console.log('Category chưa load kịp');
         }
      
-
-        // option
-
        // Map product_temp_sizes thành selectedVariations và variations
        const selected = data.product_temp_sizes.map((item) => ({
             variation: `${item.temperature.name}, ${item.size.name}`,
@@ -311,7 +311,7 @@ const AddProductForm = () => {
             const groupModifiers = product_group.group?.group_modifiers || [];
         
             return {
-                ID: product_group.ID,
+                ID: product_group.group_id,
                 Name: product_group.group?.name || "",  // If name is not available, use an empty string
                 MinQty: product_group.group?.min_qty || 0,
                 MaxQty: product_group.group?.max_qty || 0,
@@ -538,15 +538,15 @@ const AddProductForm = () => {
             "favourite": true,
             "product_groups": updated_selectedGroupModifiers,
             "product_temp_sizes": selectedVariations,
-            "product_category": formValues.Category
+            "product_category": selectedCategory, //formValues.Category
         }
         
         console.log("Product data to be saved:", productData);
         if (id) {
              // Here you can call your API to save the product data
             try {
-                const response = await Product.updateProduct(id, productData);
-                console.log("Product updated successfully:", response.data);
+                await Product.updateProduct(id, productData);
+                // console.log("Product updated successfully:", response.data);
                 toast.success("Product updated successfully:");
             } catch (error) {
                 console.error("Failed to fetch product:", error);
@@ -554,8 +554,8 @@ const AddProductForm = () => {
         }else {
              // Here you can call your API to save the product data
             try {
-                const response = await Product.createProduct(productData);
-                console.log("Product saved successfully:", response.data);
+                await Product.createProduct(productData);
+                // console.log("Product saved successfully:", response.data);
                 toast.success("Product created successfully.");
             } catch (error) {
                 console.error("Failed to fetch product:", error);
