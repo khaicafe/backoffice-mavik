@@ -4,6 +4,11 @@ import config from "../config";
 const API_URL = config.apiBaseUrl + "/menus" ;
 
 class MenuService {
+  // console.log(JSON.stringify(response.data, null, 2));
+
+  getAllMenusPos() {
+    return axios.get(config.apiBaseUrl + "/menus_pos");
+  }
   // Lấy danh sách tất cả các menu
   getAllMenus() {
     return axios.get(API_URL);

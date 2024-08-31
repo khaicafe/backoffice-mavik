@@ -59,6 +59,9 @@ const MenuList = () => {
             console.log(response.data);
             setMenus(response.data);
             setFilteredMenus(response.data);
+
+            const respons = await MenuService.getAllMenusPos();
+            console.log('data menu',respons.data);
         };
 
         fetchMenus();

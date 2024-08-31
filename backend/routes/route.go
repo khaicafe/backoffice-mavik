@@ -127,6 +127,8 @@ func SetupRouter() *gin.Engine {
 	r.PUT("/api/menus/:id", controllers.UpdateMenu)
 	r.DELETE("/api/menus/:id", controllers.DeleteMenu)
 
+	r.GET("/api/menus_pos", controllers.GetMenusForPos)
+
 	// Protected routes
 	auth := r.Group("/")
 	auth.Use(middlewares.AuthMiddleware())

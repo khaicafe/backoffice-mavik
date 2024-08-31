@@ -2,10 +2,45 @@ package controllers
 
 import (
 	"mavik-backend/models"
+	"mavik-backend/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
+
+func GetMenusForPos(c *gin.Context) {
+	var menus []models.Menu
+	if err := models.DB.
+		Preload("Products.ProductGroups.Group.GroupModifiers.Modifier").
+		Preload("Products.ProductTempsSizes.Temperature").
+		Preload("Products.ProductTempsSizes.Size").
+		Preload("Products.ProductCategory.Category").
+		Preload("Combos.ProductCombos.Product").
+		Preload("Combos.Categories.Category").
+		Find(&menus).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Tạo cấu trúc JSON tùy chỉnh
+	var result []map[string]interface{}
+
+	for _, menu := range menus {
+		menuMap := map[string]interface{}{
+			"ID":       menu.ID,
+			"name":     menu.Name,
+			"image":    menu.Image,
+			"products": utils.CleanProducts(menu.Products), // Hàm phụ để xử lý product
+			"combos":   utils.CleanCombos(menu.Combos),     // Hàm phụ để xử lý combo
+		}
+		result = append(result, menuMap)
+	}
+
+	// Chuyển đổi `menus` sang JSON và loại bỏ các trường không cần thiết
+	cleanedMenus := utils.RemoveInvalidEntries(result)
+	// Trả về JSON
+	c.JSON(http.StatusOK, cleanedMenus)
+}
 
 // GetMenus - Lấy danh sách tất cả các menus
 func GetMenus(c *gin.Context) {
