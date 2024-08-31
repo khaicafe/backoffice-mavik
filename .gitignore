@@ -3,6 +3,7 @@
 # dependencies
 /backup
 /node_modules
+/backend/uploadImage
 /.pnp
 .pnp.js
 .env
@@ -14,6 +15,7 @@
 
 
 /backend/test.db
+
 
 # misc
 .DS_Store
