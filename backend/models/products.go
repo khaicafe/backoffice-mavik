@@ -123,11 +123,13 @@ type ProductCombo struct {
 type Combo struct {
 	gorm.Model
 	Name              string          `json:"name"`
+	Description       string          `json:"description"`
 	Price             float64         `json:"price"`
 	Currency          string          `json:"currency"`
 	Discount          float64         `json:"discount"`
 	ImageLinkSquare   string          `json:"image_link_square"`
 	ImageLinkPortrait string          `json:"image_link_portrait"`
+	Ingredients       string          `json:"ingredients"`
 	Type              string          `json:"type"`
 	AverageRating     float64         `json:"average_rating"`
 	RatingsCount      string          `json:"ratings_count"`

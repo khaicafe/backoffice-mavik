@@ -125,6 +125,7 @@ const ComboList = () => {
             );
             setFilteredCombos(results);
         } else {
+            console.log("image", combos)
             setFilteredCombos(combos);
         }
     }, [searchTerm, combos]);
@@ -272,7 +273,7 @@ const ComboList = () => {
                         {filteredCombos.map((combo) => (
                             <StyledTableRow key={combo.ID}>
                                 <StyledTableCell>{combo.ID}</StyledTableCell>
-                                <StyledTableCell> <img src={BaseUrl + combo.image_link_square} alt={combo.image_link_square} style={{ width: 100 }} /></StyledTableCell>
+                                <StyledTableCell> <img src={BaseUrl + combo.image_link_square} alt={BaseUrl + combo.image_link_square} style={{ width: 100 }} /></StyledTableCell>
                                 <StyledTableCell>{combo.name}</StyledTableCell>
                                 <StyledTableCell>{combo.description}</StyledTableCell>
                                 <StyledTableCell>{combo.price}</StyledTableCell>
@@ -315,7 +316,7 @@ const ComboList = () => {
                         <Typography variant="h6" component="h3" gutterBottom>
                             Combo image
                         </Typography>
-                        <ImagePicker onImageSelect={handleImageSelect} defaultImage= {BaseUrl+imageURL}/>
+                        <ImagePicker onImageSelect={handleImageSelect} defaultImage= {BaseUrl + imageURL}/>
                     </Grid>
 
                     <TextField

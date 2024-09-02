@@ -359,7 +359,7 @@ const MenuList = () => {
                                 {products.map((product) => (
                                     <TableRow key={product.ID}>
                                         <TableCell>{product.ID}</TableCell>
-                                        <TableCell><img src={product.image_link_square} alt={product.image_link_square} style={{ width: 60 }} /></TableCell>
+                                        <TableCell><img src={BaseUrl + product.image_link_square} alt={product.image_link_square} style={{ width: 60 }} /></TableCell>
                                         <TableCell>{product.name}</TableCell>
                                         <TableCell>
                                             <Checkbox
@@ -419,7 +419,7 @@ const MenuList = () => {
                                 {combos.map((combo) => (
                                     <TableRow key={combo.ID}>
                                         <TableCell>{combo.ID}</TableCell>
-                                        <TableCell><img src={combo.image_link_square} alt={combo.image_link_square} style={{ width: 60 }} /></TableCell>
+                                        <TableCell><img src={BaseUrl+combo.image_link_square} alt={combo.image_link_square} style={{ width: 60 }} /></TableCell>
                                         <TableCell>{combo.name}</TableCell>
                                         <TableCell>
                                             <Checkbox
